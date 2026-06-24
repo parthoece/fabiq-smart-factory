@@ -10,6 +10,214 @@ This project was built to demonstrate practical software engineering for smart f
 
 ---
 
+## Visual Overview
+
+This project demonstrates a smart factory MES-style integration platform.
+
+Instead of only showing CRUD screens, the system models how manufacturing data moves from simulated shop-floor equipment into an event pipeline, backend services, database storage, and a live dashboard.
+
+### System at a Glance
+
+```mermaid
+flowchart LR
+    A[Simulated PCB Production Line] --> B[Machine Simulator]
+    B --> C[Kafka Event Streams]
+    C --> D[ASP.NET Core Backend API]
+    D --> E[(Postgres Manufacturing Database)]
+    D --> F[React Dashboard]
+    G[Kafka UI] --> C
+    H[Swagger UI] --> D
+    I[MQTT Broker] -. future IIoT ingestion .-> D
+
+    classDef source fill:#e8f4ff,stroke:#2b6cb0,stroke-width:1px
+    classDef stream fill:#fff4db,stroke:#b7791f,stroke-width:1px
+    classDef backend fill:#e9fbe9,stroke:#2f855a,stroke-width:1px
+    classDef data fill:#f3e8ff,stroke:#6b46c1,stroke-width:1px
+    classDef ui fill:#ffe8ef,stroke:#b83280,stroke-width:1px
+
+    class A,B source
+    class C stream
+    class D backend
+    class E data
+    class F,G,H ui
+```
+
+### What the System Shows
+
+| Area                      | What it Demonstrates                                             |
+| ------------------------- | ---------------------------------------------------------------- |
+| Smart factory integration | Machine-style events moving through Kafka                        |
+| MES concepts              | Work orders, production counts, downtime, quality, traceability  |
+| Backend engineering       | ASP.NET Core APIs, event processing, validation, persistence     |
+| Data storage              | Postgres manufacturing history and traceability records          |
+| Frontend dashboard        | Live visibility into machines, OEE, downtime, quality, and parts |
+| Local deployment          | Docker Compose full-stack demo environment                       |
+
+---
+
+## Manufacturing Data Flow
+
+The platform follows an event-driven manufacturing flow.
+
+```mermaid
+sequenceDiagram
+    participant Sim as Machine Simulator
+    participant Kafka as Kafka Topics
+    participant Api as ASP.NET Core API
+    participant Db as Postgres
+    participant UI as React Dashboard
+
+    Sim->>Kafka: Publish machine status
+    Sim->>Kafka: Publish production counts
+    Sim->>Kafka: Publish downtime events
+    Kafka->>Api: Consume manufacturing events
+    Api->>Api: Validate and process events
+    Api->>Db: Store production history
+    UI->>Api: Request live KPIs and traceability data
+    Api->>UI: Return machine, OEE, downtime, quality, and part data
+```
+
+In simple terms:
+
+```text
+Machine Simulator → Kafka → Backend API → Postgres → React Dashboard
+```
+
+---
+
+## MES Feature Map
+
+```mermaid
+mindmap
+  root((Fabiq MES Platform))
+    Machine Status
+      Current machine state
+      Line ID
+      Work order
+      Last update time
+    Production
+      Good count
+      Scrap count
+      Production events
+      Work order progress
+    Downtime
+      Reason codes
+      Duration
+      Machine impact
+      Downtime summary
+    Quality
+      Scrap events
+      Defect information
+      Quality rate
+    OEE
+      Availability
+      Performance
+      Quality
+      Overall OEE
+    Traceability
+      Part history
+      Machine route
+      Work order link
+      Event history
+```
+
+---
+
+## Runtime Architecture
+
+```mermaid
+flowchart TB
+    subgraph Docker["Docker Compose Local Demo"]
+        subgraph Infrastructure["Infrastructure"]
+            Postgres[(Postgres)]
+            Kafka[Kafka]
+            MQTT[MQTT Broker]
+            KafkaUI[Kafka UI]
+        end
+
+        subgraph Backend["Backend Services"]
+            API[ASP.NET Core Backend API]
+            Simulator[Machine Simulator]
+        end
+
+        subgraph Frontend["User Interfaces"]
+            React[React Dashboard]
+            Swagger[Swagger API UI]
+        end
+    end
+
+    Simulator --> Kafka
+    Kafka --> API
+    API --> Postgres
+    React --> API
+    Swagger --> API
+    KafkaUI --> Kafka
+    MQTT -. future IIoT path .-> API
+```
+
+This setup allows the full demo to run locally with one command:
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+## Kafka Event Topics
+
+```mermaid
+flowchart LR
+    Sim[Machine Simulator] --> T1[machine.status]
+    Sim --> T2[production.counts]
+    Sim --> T3[downtime.events]
+    Sim --> T4[quality.inspections]
+    Sim --> T5[workorder.events]
+
+    T1 --> Api[Backend Event Consumer]
+    T2 --> Api
+    T3 --> Api
+    T4 -. planned/extended .-> Api
+    T5 -. planned/extended .-> Api
+
+    Api --> Db[(Postgres)]
+```
+
+Main topics used by the local demo:
+
+| Topic                 | Purpose                                        |
+| --------------------- | ---------------------------------------------- |
+| `machine.status`      | Current machine state changes                  |
+| `production.counts`   | Good count, scrap count, and production output |
+| `downtime.events`     | Downtime records and reason codes              |
+| `quality.inspections` | Quality and defect event stream                |
+| `workorder.events`    | Work-order-related activity                    |
+
+---
+
+## Dashboard Views
+
+```mermaid
+flowchart LR
+    API[Backend APIs] --> A[Machine Status Cards]
+    API --> B[Work Order Progress]
+    API --> C[OEE Metrics]
+    API --> D[Downtime Summary]
+    API --> E[Quality / Scrap View]
+    API --> F[Part Traceability Lookup]
+```
+
+The React dashboard turns backend manufacturing data into operational visibility:
+
+| Dashboard Area    | Business Question Answered                            |
+| ----------------- | ----------------------------------------------------- |
+| Machine status    | Which machines are running, idle, down, or producing? |
+| Work orders       | What is currently being produced?                     |
+| Production counts | How many good and scrap units were produced?          |
+| Downtime          | Where is time being lost?                             |
+| OEE               | How healthy is the line performance?                  |
+| Traceability      | What happened to a specific part or work order?       |
+
+
 ## Index
 
 1. [Project Overview](#1-project-overview)
@@ -64,61 +272,31 @@ docs/screenshots/
 
 ### Dashboard
 
-Place a screenshot of the main React dashboard here:
 
-```md
-![Dashboard screenshot](docs/screenshots/dashboard.png)
-```
 
 ![Dashboard screenshot](docs/screenshots/dashboard.png)
 
 ### Machine Status View
 
-Place a screenshot of live machine status cards here:
-
-```md
-![Machine status screenshot](docs/screenshots/machine-status.png)
-```
 
 ![Machine status screenshot](docs/screenshots/machine-status.png)
 
 ### OEE / Downtime / Quality View
 
-Place a screenshot of OEE, downtime, or quality charts here:
-
-```md
-![OEE dashboard screenshot](docs/screenshots/oee-dashboard.png)
-```
 
 ![OEE dashboard screenshot](docs/screenshots/oee-dashboard.png)
 
 ### Traceability View
 
-Place a screenshot of a part or work-order traceability lookup here:
-
-```md
-![Traceability screenshot](docs/screenshots/traceability.png)
-```
 
 ![Traceability screenshot](docs/screenshots/traceability.png)
 
 ### Kafka UI
 
-Place a screenshot of Kafka UI topics here:
-
-```md
-![Kafka UI screenshot](docs/screenshots/kafka-ui.png)
-```
 
 ![Kafka UI screenshot](docs/screenshots/kafka-ui.png)
 
 ### Swagger API
-
-Place a screenshot of the backend Swagger page here:
-
-```md
-![Swagger API screenshot](docs/screenshots/swagger.png)
-```
 
 ![Swagger API screenshot](docs/screenshots/swagger.png)
 
@@ -142,7 +320,8 @@ Install:
 ### 3.2 Clone the Repository
 
 ```bash
-git clone https://github.com/<your-github-username>/fabiq-smart-factory.git
+git clone https://github.com/parthoece/fabiq-smart-factory.git
+cd fabiq-smart-factory
 cd fabiq-smart-factory
 ```
 
@@ -593,7 +772,6 @@ Built a smart factory MES integration platform using ASP.NET Core, React, Kafka,
 
 The system simulates a PCB production line, processes machine and production events, calculates OEE, tracks downtime and scrap, and provides part-level traceability through backend APIs and a live dashboard.
 
-Suggested resume bullet:
 
 > Built a Dockerized smart factory MES integration platform with ASP.NET Core, React, Kafka, Postgres, and MQTT, including a simulator-driven event pipeline for machine status, production counts, downtime tracking, OEE calculation, and part-level traceability.
 
@@ -601,9 +779,8 @@ Suggested resume bullet:
 
 ## 19. License
 
-This project is intended for portfolio and learning purposes.
+This project is intended for portfolio, learning, and open-source demonstration purposes.
 
-Add a license file if you want to make reuse terms explicit, for example:
+This project is licensed under the MIT License. See the [`LICENSE`](LICENSE) file for details.
 
-- MIT License for open-source reuse
-- No license if you want to keep all rights reserved by default
+
