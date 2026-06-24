@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37301.10 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fabiq.SmartFactory.Api", "Fabiq.SmartFactory.Api\Fabiq.SmartFactory.Api.csproj", "{4816CF80-46D2-471E-8082-44E7A758156C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4F-00C04F79EFBC}") = "Fabiq.SmartFactory.Simulator", "..\..\machine-simulator\Fabiq.SmartFactory.Simulator\Fabiq.SmartFactory.Simulator.csproj", "{8CE5CF95-9E8C-4D5D-9F7A-6D4E1C6D7A2C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4816CF80-46D2-471E-8082-44E7A758156C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4816CF80-46D2-471E-8082-44E7A758156C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4816CF80-46D2-471E-8082-44E7A758156C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4816CF80-46D2-471E-8082-44E7A758156C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CE5CF95-9E8C-4D5D-9F7A-6D4E1C6D7A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CE5CF95-9E8C-4D5D-9F7A-6D4E1C6D7A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CE5CF95-9E8C-4D5D-9F7A-6D4E1C6D7A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CE5CF95-9E8C-4D5D-9F7A-6D4E1C6D7A2C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5F283BD3-CD44-474D-8CD2-7516A127D08A}
+	EndGlobalSection
+EndGlobal

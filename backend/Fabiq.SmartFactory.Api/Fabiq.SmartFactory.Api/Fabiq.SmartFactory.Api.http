@@ -1,0 +1,57 @@
+@baseUrl = https://localhost:5078
+
+### Swagger
+GET {{baseUrl}}/swagger
+
+
+### Seed machines
+POST {{baseUrl}}/api/machines/seed
+
+
+### Seed work orders
+POST {{baseUrl}}/api/workorders/seed
+
+
+### Create demo good production event
+POST {{baseUrl}}/api/productionevents/demo-good
+
+
+### Create demo scrap production event
+POST {{baseUrl}}/api/productionevents/demo-scrap
+
+
+### Create demo downtime event
+POST {{baseUrl}}/api/downtime/demo
+
+
+### Get machines
+GET {{baseUrl}}/api/machines
+
+
+### Get work orders
+GET {{baseUrl}}/api/workorders
+
+
+### Get recent production events
+GET {{baseUrl}}/api/productionevents/recent
+
+
+### Get line OEE
+GET {{baseUrl}}/api/oee/line/LINE-A?plannedProductionMinutes=480&idealCycleTimeSeconds=30
+
+
+### Get downtime recent
+GET {{baseUrl}}/api/downtime/recent
+
+
+### Get downtime summary
+GET {{baseUrl}}/api/downtime/summary?lineId=LINE-A
+
+
+### Get work order traceability
+GET {{baseUrl}}/api/traceability/work-order/WO-2026-0001
+
+
+### Get part traceability
+### Replace with real PartId from /api/productionevents/recent
+GET {{baseUrl}}/api/traceability/part/PCB-123456

@@ -1,0 +1,28 @@
+# Environment files
+.env
+.env.local
+
+# Node / React
+node_modules/
+dist/
+build/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Docker / local overrides
+docker-compose.override.yml
+
+# IDE / editors
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

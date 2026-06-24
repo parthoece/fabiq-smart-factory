@@ -1,0 +1,1127 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Fabiq.SmartFactory.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Downtime/recent": {
+      "get": {
+        "tags": [
+          "Downtime"
+        ],
+        "parameters": [
+          {
+            "name": "lineId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeEventDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeEventDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeEventDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Downtime/summary": {
+      "get": {
+        "tags": [
+          "Downtime"
+        ],
+        "parameters": [
+          {
+            "name": "lineId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeSummaryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeSummaryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DowntimeSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Downtime": {
+      "post": {
+        "tags": [
+          "Downtime"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDowntimeEventRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDowntimeEventRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDowntimeEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Downtime/demo": {
+      "post": {
+        "tags": [
+          "Downtime"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Machines/status": {
+      "get": {
+        "tags": [
+          "Machines"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MachineStatusDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MachineStatusDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MachineStatusDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Machines/seed": {
+      "post": {
+        "tags": [
+          "Machines"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Oee/line/{lineId}": {
+      "get": {
+        "tags": [
+          "Oee"
+        ],
+        "parameters": [
+          {
+            "name": "lineId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "plannedProductionMinutes",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 120
+            }
+          },
+          {
+            "name": "idealCycleTimeSeconds",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Oee/work-order/{workOrderId}": {
+      "get": {
+        "tags": [
+          "Oee"
+        ],
+        "parameters": [
+          {
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "plannedProductionMinutes",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 120
+            }
+          },
+          {
+            "name": "idealCycleTimeSeconds",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProductionEvents/recent": {
+      "get": {
+        "tags": [
+          "ProductionEvents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductionEventDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductionEventDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductionEventDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProductionEvents": {
+      "post": {
+        "tags": [
+          "ProductionEvents"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductionEventRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductionEventRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductionEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ProductionEvents/demo-good": {
+      "post": {
+        "tags": [
+          "ProductionEvents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ProductionEvents/demo-scrap": {
+      "post": {
+        "tags": [
+          "ProductionEvents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Traceability/part/{partId}": {
+      "get": {
+        "tags": [
+          "Traceability"
+        ],
+        "parameters": [
+          {
+            "name": "partId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartTraceabilityDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartTraceabilityDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartTraceabilityDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Traceability/work-order/{workOrderId}": {
+      "get": {
+        "tags": [
+          "Traceability"
+        ],
+        "parameters": [
+          {
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderTraceabilityDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderTraceabilityDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderTraceabilityDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WorkOrders": {
+      "get": {
+        "tags": [
+          "WorkOrders"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WorkOrders/active": {
+      "get": {
+        "tags": [
+          "WorkOrders"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkOrderDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WorkOrders/{workOrderId}": {
+      "get": {
+        "tags": [
+          "WorkOrders"
+        ],
+        "parameters": [
+          {
+            "name": "workOrderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkOrderDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WorkOrders/seed": {
+      "post": {
+        "tags": [
+          "WorkOrders"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateDowntimeEventRequest": {
+        "type": "object",
+        "properties": {
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reasonCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateProductionEventRequest": {
+        "type": "object",
+        "properties": {
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partId": {
+            "type": "string",
+            "nullable": true
+          },
+          "defectType": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DowntimeEventDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reasonCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DowntimeSummaryDto": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reasonCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDurationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "affectedMachineCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastOccurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MachineStatusDto": {
+        "type": "object",
+        "properties": {
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentWorkOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "goodCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scrapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OeeDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "nullable": true
+          },
+          "plannedProductionMinutes": {
+            "type": "number",
+            "format": "double"
+          },
+          "runningMinutes": {
+            "type": "number",
+            "format": "double"
+          },
+          "idealCycleTimeSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "goodCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scrapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "availability": {
+            "type": "number",
+            "format": "double"
+          },
+          "performance": {
+            "type": "number",
+            "format": "double"
+          },
+          "quality": {
+            "type": "number",
+            "format": "double"
+          },
+          "oee": {
+            "type": "number",
+            "format": "double"
+          },
+          "calculatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartTraceabilityDto": {
+        "type": "object",
+        "properties": {
+          "partId": {
+            "type": "string",
+            "nullable": true
+          },
+          "finalStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentMachineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentLineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "route": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartTraceabilityStepDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PartTraceabilityStepDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "defectType": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductionEventDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "machineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partId": {
+            "type": "string",
+            "nullable": true
+          },
+          "defectType": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkOrderDto": {
+        "type": "object",
+        "properties": {
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "plannedQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "goodCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scrapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkOrderPartSummaryDto": {
+        "type": "object",
+        "properties": {
+          "partId": {
+            "type": "string",
+            "nullable": true
+          },
+          "finalStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "goodQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scrapQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastMachineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastEventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkOrderTraceabilityDto": {
+        "type": "object",
+        "properties": {
+          "workOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineId": {
+            "type": "string",
+            "nullable": true
+          },
+          "plannedQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "goodCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scrapCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "partCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkOrderPartSummaryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

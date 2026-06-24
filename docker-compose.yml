@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: fabiq-postgres
+    environment:
+      POSTGRES_DB: fabiq
+      POSTGRES_USER: fabiq
+      POSTGRES_PASSWORD: fabiq
+    ports:
+      - "5432:5432"
+    volumes:
+      - fabiq-postgres-data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+
+  backend:
+    build:
+      context: ./backend/Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api
+    container_name: fabiq-backend
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5078
+      ConnectionStrings__SmartFactoryDb: Host=postgres;Port=5432;Database=fabiq;Username=fabiq;Password=fabiq
+      Kafka__BootstrapServers: kafka:29092
+      Kafka__GroupId: fabiq-smart-factory-api
+      Kafka__MachineStatusTopic: machine.status
+      Kafka__ProductionTopic: production.counts
+      Kafka__DowntimeTopic: downtime.events
+    ports:
+      - "5078:5078"
+    depends_on:
+      - postgres
+      - kafka
+
+  simulator:
+    build:
+      context: ./machine-simulator/Fabiq.SmartFactory.Simulator
+    container_name: fabiq-simulator
+    restart: unless-stopped
+    environment:
+      BACKEND_BASE_URL: http://backend:5078
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_MACHINE_STATUS_TOPIC: machine.status
+      KAFKA_PRODUCTION_TOPIC: production.counts
+      KAFKA_DOWNTIME_TOPIC: downtime.events
+      SIMULATOR_INTERVAL_MS: 4000
+      SIMULATOR_ITERATIONS: 0
+    depends_on:
+      - backend
+      - kafka
+
+  kafka:
+    image: apache/kafka:4.3.0
+    container_name: fabiq-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: fabiq-kafka-ui
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    depends_on:
+      - kafka
+
+  frontend:
+    build:
+      context: ./frontend/fabiq-dashboard
+      args:
+        VITE_API_BASE_URL: http://localhost:5078
+    container_name: fabiq-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: fabiq-mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+volumes:
+  fabiq-postgres-data:
