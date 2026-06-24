@@ -14,143 +14,36 @@ This project was built to demonstrate practical software engineering for smart f
 
 This project demonstrates a smart factory MES-style integration platform for a simulated PCB/electronics production line.
 
-The main idea is simple:
+The main flow is:
 
 ```text
 Machine Events → Kafka → Backend API → Postgres → React Dashboard
 ```
 
----
-
 ### System Architecture
 
-```mermaid
-flowchart TB
-    A[Machine Simulator] --> B[Kafka Event Streams]
-    B --> C[ASP.NET Core Backend API]
-    C --> D[(Postgres Database)]
-    C --> E[React Dashboard]
-
-    F[Kafka UI] --> B
-    G[Swagger UI] --> C
-    H[MQTT Broker] -. future IIoT ingestion .-> C
-```
+<p align="center">
+  <img src="docs/diagrams/system-overview.svg" alt="Fabiq system architecture diagram" width="760">
+</p>
 
 The simulator generates shop-floor-style events. Kafka carries those events to the backend. The backend processes and stores the data in Postgres. The React dashboard shows live manufacturing KPIs.
 
----
-
 ### Runtime Data Flow
 
-```mermaid
-sequenceDiagram
-    participant Sim as Simulator
-    participant Kafka as Kafka
-    participant API as Backend API
-    participant DB as Postgres
-    participant UI as Dashboard
+<p align="center">
+  <img src="docs/diagrams/runtime-data-flow.svg" alt="Fabiq runtime data flow diagram" width="760">
+</p>
 
-    Sim->>Kafka: Machine status event
-    Sim->>Kafka: Production count event
-    Sim->>Kafka: Downtime event
-    Kafka->>API: Consume event stream
-    API->>DB: Save manufacturing history
-    UI->>API: Request KPIs
-    API->>UI: Return dashboard data
-```
+This shows how simulated machine activity becomes stored manufacturing history and live dashboard data.
 
-This shows the end-to-end path from simulated machine activity to dashboard visibility.
+### MES Feature Map
 
----
-
-### MES Feature Areas
-
-```mermaid
-flowchart TB
-    A[Fabiq MES Platform]
-
-    A --> B[Machine Status]
-    A --> C[Work Orders]
-    A --> D[Production Events]
-    A --> E[Downtime Tracking]
-    A --> F[OEE Metrics]
-    A --> G[Part Traceability]
-
-    B --> B1[Running / Idle / Down]
-    C --> C1[Planned vs actual output]
-    D --> D1[Good count and scrap count]
-    E --> E1[Reason codes and duration]
-    F --> F1[Availability, performance, quality]
-    G --> G1[Part route and event history]
-```
+<p align="center">
+  <img src="docs/diagrams/mes-feature-map.svg" alt="Fabiq MES feature map diagram" width="760">
+</p>
 
 The project covers common MES concepts: machine state, work orders, production output, downtime, OEE, quality, and traceability.
 
----
-
-### Docker Compose Local Demo
-
-```mermaid
-flowchart TB
-    A[docker compose up -d --build]
-
-    A --> B[Postgres]
-    A --> C[Kafka]
-    A --> D[MQTT Broker]
-    A --> E[Backend API]
-    A --> F[Machine Simulator]
-    A --> G[React Dashboard]
-    A --> H[Kafka UI]
-
-    F --> C
-    C --> E
-    E --> B
-    G --> E
-    H --> C
-```
-
-The full demo runs locally with Docker Compose.
-
----
-
-### Kafka Topics
-
-```mermaid
-flowchart TB
-    A[Machine Simulator]
-
-    A --> B[machine.status]
-    A --> C[production.counts]
-    A --> D[downtime.events]
-    A --> E[quality.inspections]
-    A --> F[workorder.events]
-
-    B --> G[Backend Consumer]
-    C --> G
-    D --> G
-    E -. extended topic .-> G
-    F -. extended topic .-> G
-
-    G --> H[(Postgres)]
-```
-
-The local MVP focuses mainly on machine status, production counts, and downtime events.
-
----
-
-### Dashboard Views
-
-```mermaid
-flowchart TB
-    A[React Dashboard] --> B[Machine Status Cards]
-    A --> C[Work Order Progress]
-    A --> D[OEE Metrics]
-    A --> E[Downtime Summary]
-    A --> F[Quality / Scrap View]
-    A --> G[Traceability Lookup]
-```
-
-The dashboard turns backend manufacturing data into views that are easy to track by operators.
 
 
 ## Index

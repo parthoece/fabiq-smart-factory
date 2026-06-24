@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
+  <title id="title">Fabiq MES feature map</title>
+  <desc id="desc">Feature map showing machine status, work orders, production events, downtime, OEE metrics, and part traceability.</desc>
+  <defs>
+    <style>
+      .bg { fill: #F8FAFC; }
+      .title { font: 700 26px Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #475569; }
+      .center { fill: #E0F2FE; stroke: #38BDF8; stroke-width: 1.6; rx: 24; }
+      .box { stroke-width: 1.4; rx: 18; }
+      .label { font: 700 15px Arial, sans-serif; fill: #0F172A; text-anchor: middle; }
+      .small { font: 400 12.5px Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .line { stroke: #94A3B8; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="900" height="560" rx="24"/>
+  <text class="title" x="450" y="44" text-anchor="middle">MES Feature Map</text>
+  <text class="subtitle" x="450" y="70" text-anchor="middle">The project connects common manufacturing concepts into one local portfolio demo</text>
+
+  <rect class="center" x="350" y="230" width="200" height="92"/>
+  <text class="label" x="450" y="267">Fabiq MES</text>
+  <text class="label" x="450" y="289">Integration Platform</text>
+  <text class="small" x="450" y="309">portfolio MVP</text>
+
+  <path class="line" d="M350 258 C265 220 230 172 210 135"/>
+  <path class="line" d="M450 230 V145"/>
+  <path class="line" d="M550 258 C635 220 670 172 690 135"/>
+  <path class="line" d="M350 294 C265 330 230 385 210 425"/>
+  <path class="line" d="M450 322 V415"/>
+  <path class="line" d="M550 294 C635 330 670 385 690 425"/>
+
+  <rect class="box" x="95" y="95" width="230" height="82" fill="#DCFCE7" stroke="#22C55E"/>
+  <text class="label" x="210" y="128">Machine Status</text>
+  <text class="small" x="210" y="151">running / idle / down</text>
+
+  <rect class="box" x="335" y="95" width="230" height="82" fill="#FEF3C7" stroke="#F59E0B"/>
+  <text class="label" x="450" y="128">Work Orders</text>
+  <text class="small" x="450" y="151">planned vs actual output</text>
+
+  <rect class="box" x="575" y="95" width="230" height="82" fill="#E0F2FE" stroke="#38BDF8"/>
+  <text class="label" x="690" y="128">Production Events</text>
+  <text class="small" x="690" y="151">good count + scrap count</text>
+
+  <rect class="box" x="95" y="400" width="230" height="82" fill="#FFE4E6" stroke="#FB7185"/>
+  <text class="label" x="210" y="433">Downtime Tracking</text>
+  <text class="small" x="210" y="456">reason codes + duration</text>
+
+  <rect class="box" x="335" y="400" width="230" height="82" fill="#F3E8FF" stroke="#A855F7"/>
+  <text class="label" x="450" y="433">OEE Metrics</text>
+  <text class="small" x="450" y="456">availability / performance / quality</text>
+
+  <rect class="box" x="575" y="400" width="230" height="82" fill="#ECFEFF" stroke="#06B6D4"/>
+  <text class="label" x="690" y="433">Part Traceability</text>
+  <text class="small" x="690" y="456">part route + event history</text>
+</svg>

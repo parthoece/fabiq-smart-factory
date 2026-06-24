@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+  <title id="title">Fabiq system overview</title>
+  <desc id="desc">Architecture diagram showing simulator, Kafka, backend, Postgres, React dashboard, Kafka UI, Swagger UI, and MQTT broker.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#64748B"/>
+    </marker>
+    <style>
+      .bg { fill: #F8FAFC; }
+      .title { font: 700 26px Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #475569; }
+      .box { stroke-width: 1.5; rx: 18; }
+      .label { font: 700 16px Arial, sans-serif; fill: #0F172A; text-anchor: middle; }
+      .small { font: 400 13px Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .arrow { stroke: #64748B; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 7 7; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="520" rx="24"/>
+  <text class="title" x="450" y="44" text-anchor="middle">Fabiq Smart Factory MES Integration Platform</text>
+  <text class="subtitle" x="450" y="70" text-anchor="middle">Simulated manufacturing events flow through Kafka into APIs, Postgres, and a live dashboard</text>
+
+  <rect class="box" x="50" y="135" width="170" height="90" fill="#E0F2FE" stroke="#38BDF8"/>
+  <text class="label" x="135" y="170">Machine</text>
+  <text class="label" x="135" y="192">Simulator</text>
+  <text class="small" x="135" y="213">PCB line events</text>
+
+  <rect class="box" x="280" y="135" width="170" height="90" fill="#FEF3C7" stroke="#F59E0B"/>
+  <text class="label" x="365" y="170">Kafka</text>
+  <text class="label" x="365" y="192">Event Streams</text>
+  <text class="small" x="365" y="213">status / counts / downtime</text>
+
+  <rect class="box" x="510" y="135" width="170" height="90" fill="#DCFCE7" stroke="#22C55E"/>
+  <text class="label" x="595" y="170">ASP.NET Core</text>
+  <text class="label" x="595" y="192">Backend API</text>
+  <text class="small" x="595" y="213">process + validate</text>
+
+  <rect class="box" x="280" y="315" width="170" height="90" fill="#F3E8FF" stroke="#A855F7"/>
+  <text class="label" x="365" y="350">Postgres</text>
+  <text class="label" x="365" y="372">Database</text>
+  <text class="small" x="365" y="393">history + traceability</text>
+
+  <rect class="box" x="510" y="315" width="170" height="90" fill="#FFE4E6" stroke="#FB7185"/>
+  <text class="label" x="595" y="350">React</text>
+  <text class="label" x="595" y="372">Dashboard</text>
+  <text class="small" x="595" y="393">KPIs + views</text>
+
+  <rect class="box" x="725" y="130" width="125" height="70" fill="#E2E8F0" stroke="#94A3B8"/>
+  <text class="label" x="787.5" y="162">Swagger</text>
+  <text class="small" x="787.5" y="184">API docs</text>
+
+  <rect class="box" x="725" y="230" width="125" height="70" fill="#E2E8F0" stroke="#94A3B8"/>
+  <text class="label" x="787.5" y="262">Kafka UI</text>
+  <text class="small" x="787.5" y="284">topics</text>
+
+  <rect class="box" x="50" y="315" width="170" height="90" fill="#ECFEFF" stroke="#06B6D4"/>
+  <text class="label" x="135" y="350">MQTT Broker</text>
+  <text class="small" x="135" y="374">future IIoT path</text>
+
+  <path class="arrow" d="M220 180 H270"/>
+  <path class="arrow" d="M450 180 H500"/>
+  <path class="arrow" d="M595 225 V305"/>
+  <path class="arrow" d="M510 360 H460"/>
+  <path class="arrow" d="M595 315 V235"/>
+  <path class="arrow" d="M680 180 H715"/>
+  <path class="arrow" d="M450 205 C555 260 610 260 715 265"/>
+  <path class="arrow dashed" d="M220 360 C350 430 520 430 580 405"/>
+
+  <text class="small" x="250" y="163">publish</text>
+  <text class="small" x="480" y="163">consume</text>
+  <text class="small" x="638" y="270" transform="rotate(90 638 270)">read/write</text>
+</svg>
