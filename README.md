@@ -9,6 +9,11 @@ A full-stack smart manufacturing demo that simulates a PCB/electronics productio
 This project was built to demonstrate practical software engineering for smart factory, MES, IIoT, and manufacturing integration roles.
 
 ---
+## Demo Preview
+
+The demo shows a simulated PCB production line streaming manufacturing events through Kafka, storing production history in Postgres, and visualizing live MES/OEE KPIs in the React dashboard.
+
+![Fabiq demo](docs/screenshots/fabiq-demo.gif)
 
 ## Visual Overview
 
