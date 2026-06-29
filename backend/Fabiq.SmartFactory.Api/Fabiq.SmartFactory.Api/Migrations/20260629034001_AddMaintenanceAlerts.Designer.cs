@@ -3,6 +3,7 @@ using System;
 using Fabiq.SmartFactory.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fabiq.SmartFactory.Api.Migrations
 {
     [DbContext(typeof(SmartFactoryDbContext))]
-    partial class SmartFactoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260629034001_AddMaintenanceAlerts")]
+    partial class AddMaintenanceAlerts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

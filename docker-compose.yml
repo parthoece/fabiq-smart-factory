@@ -10,7 +10,28 @@ services:
       - "5432:5432"
     volumes:
       - fabiq-postgres-data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fabiq -d fabiq"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-migrator:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: fabiq-db-migrator
+    working_dir: /src
+    volumes:
+      - ./backend/Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api:/src
+    environment:
+      ConnectionStrings__SmartFactoryDb: Host=postgres;Port=5432;Database=fabiq;Username=fabiq;Password=fabiq
+    command: >
+      sh -c "dotnet restore &&
+            dotnet tool install --global dotnet-ef --version '8.*' &&
+            export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+            dotnet ef database update --connection 'Host=postgres;Port=5432;Database=fabiq;Username=fabiq;Password=fabiq'"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   backend:
     build:
@@ -26,11 +47,14 @@ services:
       Kafka__MachineStatusTopic: machine.status
       Kafka__ProductionTopic: production.counts
       Kafka__DowntimeTopic: downtime.events
+      Kafka__MaintenanceAlertsTopic: maintenance.alerts
     ports:
       - "5078:5078"
     depends_on:
-      - postgres
-      - kafka
+      db-migrator:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_started
 
   simulator:
     build:
@@ -43,11 +67,14 @@ services:
       KAFKA_MACHINE_STATUS_TOPIC: machine.status
       KAFKA_PRODUCTION_TOPIC: production.counts
       KAFKA_DOWNTIME_TOPIC: downtime.events
+      KAFKA_TELEMETRY_TOPIC: machine.telemetry
       SIMULATOR_INTERVAL_MS: 4000
-      SIMULATOR_ITERATIONS: 0
+      SIMULATOR_ITERATIONS: 10
     depends_on:
-      - backend
-      - kafka
+      backend:
+        condition: service_started
+      kafka:
+        condition: service_started
 
   kafka:
     image: apache/kafka:4.3.0
@@ -64,6 +91,11 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 1
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -86,7 +118,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+        backend:
+          condition: service_started
 
   mqtt:
     image: eclipse-mosquitto:2

@@ -15,6 +15,7 @@ public class SmartFactoryDbContext : DbContext
     public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
     public DbSet<ProductionEvent> ProductionEvents => Set<ProductionEvent>();
     public DbSet<DowntimeEvent> DowntimeEvents => Set<DowntimeEvent>();
+    public DbSet<MaintenanceAlert> MaintenanceAlerts => Set<MaintenanceAlert>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -181,6 +182,61 @@ public class SmartFactoryDbContext : DbContext
 
             entity.Property(e => e.Notes)
                 .HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<MaintenanceAlert>(entity =>
+        {
+            entity.ToTable("maintenance_alerts");
+
+            entity.HasKey(e => e.Id);
+
+            entity.HasIndex(e => e.AlertId)
+                .IsUnique();
+
+            entity.HasIndex(e => e.MachineId);
+            entity.HasIndex(e => e.WorkOrderId);
+            entity.HasIndex(e => e.AlertType);
+            entity.HasIndex(e => e.Severity);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.ResolvedAt);
+
+            entity.Property(e => e.AlertId)
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.Property(e => e.MachineId)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(e => e.WorkOrderId)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.AlertType)
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.Property(e => e.Severity)
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(e => e.Message)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            entity.Property(e => e.SourceEventId)
+                .HasMaxLength(80);
+
+            entity.Property(e => e.TemperatureC)
+                .HasPrecision(10, 2);
+
+            entity.Property(e => e.VibrationMmS)
+                .HasPrecision(10, 2);
+
+            entity.Property(e => e.CycleTimeSeconds)
+                .HasPrecision(10, 2);
+
+            entity.Property(e => e.ScrapRate)
+                .HasPrecision(10, 4);
         });
     }
 }

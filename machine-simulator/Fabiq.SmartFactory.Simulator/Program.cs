@@ -18,6 +18,9 @@ var productionTopic = Environment.GetEnvironmentVariable("KAFKA_PRODUCTION_TOPIC
 var downtimeTopic = Environment.GetEnvironmentVariable("KAFKA_DOWNTIME_TOPIC")
     ?? "downtime.events";
 
+var telemetryTopic = Environment.GetEnvironmentVariable("KAFKA_TELEMETRY_TOPIC")
+    ?? "machine.telemetry";
+
 var intervalMs = ReadInt("SIMULATOR_INTERVAL_MS", 4000);
 var iterations = ReadInt("SIMULATOR_ITERATIONS", 0);
 var seedFirst = !string.Equals(
@@ -72,6 +75,35 @@ while (iterations <= 0 || cycle < iterations)
             DateTimeOffset.UtcNow
         ));
     }
+
+    foreach (var machineId in machineIds)
+        {
+            var anomalyMode = Random.Shared.NextDouble() < 0.18;
+
+            var telemetry = new MachineTelemetryMessage(
+                EventId: Guid.NewGuid().ToString("N"),
+                MachineId: machineId,
+                WorkOrderId: activeWorkOrderId,
+                Timestamp: DateTimeOffset.UtcNow,
+                TemperatureC: anomalyMode
+                    ? Random.Shared.Next(86, 98)
+                    : Random.Shared.Next(55, 78),
+                VibrationMmS: anomalyMode
+                    ? Math.Round((decimal)(Random.Shared.NextDouble() * 3.0 + 5.2), 2)
+                    : Math.Round((decimal)(Random.Shared.NextDouble() * 2.0 + 1.5), 2),
+                CycleTimeSeconds: anomalyMode
+                    ? Random.Shared.Next(42, 62)
+                    : Random.Shared.Next(24, 36),
+                ErrorCount: anomalyMode
+                    ? Random.Shared.Next(3, 8)
+                    : Random.Shared.Next(0, 2),
+                ScrapRate: anomalyMode
+                    ? Math.Round((decimal)(Random.Shared.NextDouble() * 0.08 + 0.08), 4)
+                    : Math.Round((decimal)(Random.Shared.NextDouble() * 0.04), 4)
+            );
+
+            await PublishAsync(producer, telemetryTopic, telemetry);
+        }
 
     await PublishAsync(producer, productionTopic, new ProductionEventMessage(
         "SMT-01",
@@ -268,4 +300,15 @@ public record DowntimeEventMessage(
     int DurationMinutes,
     DateTimeOffset StartedAt,
     string? Notes
+);
+public record MachineTelemetryMessage(
+    string EventId,
+    string MachineId,
+    string? WorkOrderId,
+    DateTimeOffset Timestamp,
+    decimal TemperatureC,
+    decimal VibrationMmS,
+    decimal CycleTimeSeconds,
+    int ErrorCount,
+    decimal ScrapRate
 );
