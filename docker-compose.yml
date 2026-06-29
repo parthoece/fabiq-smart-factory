@@ -56,6 +56,22 @@ services:
       kafka:
         condition: service_started
 
+  ai-anomaly-worker:
+    build:
+      context: ./ai-anomaly-service/Fabiq.SmartFactory.AnomalyWorker
+    container_name: fabiq-ai-anomaly-worker
+    restart: unless-stopped
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_GROUP_ID: fabiq-anomaly-worker
+      KAFKA_TELEMETRY_TOPIC: machine.telemetry
+      KAFKA_ALERT_TOPIC: maintenance.alerts
+    depends_on:
+      backend:
+        condition: service_started
+      kafka:
+        condition: service_started
+
   simulator:
     build:
       context: ./machine-simulator/Fabiq.SmartFactory.Simulator
@@ -74,6 +90,8 @@ services:
       backend:
         condition: service_started
       kafka:
+        condition: service_started
+      ai-anomaly-worker:
         condition: service_started
 
   kafka:
