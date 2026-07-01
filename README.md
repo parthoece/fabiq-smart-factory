@@ -1,12 +1,12 @@
-# Fabiq — Smart Factory MES Integration Platform
+# Fabiq Smart Factory MES Integration Platform
 
 **Version:** `v1.0.0 Portfolio MVP`  
-**Status:** Portfolio demo / local development project  
+**Status:** Portfolio demo and local development project  
 **Domain:** Smart Manufacturing, MES, IIoT, OEE, Traceability
 
-A full-stack smart manufacturing demo that simulates a PCB/electronics production line, streams machine events through Kafka, stores manufacturing history in Postgres, and visualizes live shop-floor KPIs in a React dashboard.
+Fabiq is a full-stack smart manufacturing demo that simulates a PCB/electronics production line, streams machine events through Kafka, stores manufacturing history in Postgres, and visualizes live shop-floor KPIs in a React dashboard.
 
-This project was built to demonstrate practical software engineering for smart factory, MES, IIoT, and manufacturing integration roles.
+It was built as portfolio evidence for smart factory, MES, IIoT, and manufacturing integration roles.
 
 ---
 ## Demo Preview
@@ -49,6 +49,14 @@ This shows how simulated machine activity becomes stored manufacturing history a
 
 The project covers common MES concepts: machine state, work orders, production output, downtime, OEE, quality, and traceability.
 
+### AI Extension and Observability
+
+The v2 extension adds telemetry-driven anomaly detection, maintenance alerts, health and readiness endpoints, and a lightweight Prometheus/Grafana observability path.
+
+The anomaly worker consumes `machine.telemetry`, applies rule-based detection, and publishes alerts to `maintenance.alerts`. The backend stores those alerts and the dashboard surfaces them alongside live production data.
+
+Grafana is provisioned with a Prometheus datasource and a starter overview dashboard so the counters exposed by `/metrics` are visible without manual setup.
+
 
 
 ## Index
@@ -56,22 +64,23 @@ The project covers common MES concepts: machine state, work orders, production o
 1. [Project Overview](#1-project-overview)
 2. [Demo Preview](#2-demo-preview)
 3. [Quick Guide: Run the Local Demo](#3-quick-guide-run-the-local-demo)
-4. [Detailed Reproduction Guide](#4-detailed-reproduction-guide)
-5. [Manufacturing Scenario](#5-manufacturing-scenario)
-6. [Architecture](#6-architecture)
-7. [Runtime Flow](#7-runtime-flow)
-8. [Tech Stack](#8-tech-stack)
-9. [Repository Layout](#9-repository-layout)
-10. [Core Features](#10-core-features)
-11. [API Highlights](#11-api-highlights)
-12. [Kafka Topics](#12-kafka-topics)
-13. [Demo Script](#13-demo-script)
-14. [Technical FAQ](#14-technical-faq)
-15. [Current Status](#15-current-status)
-16. [Future Improvements](#16-future-improvements)
-17. [Portfolio Positioning](#17-portfolio-positioning)
-18. [Resume Summary](#18-resume-summary)
-19. [License](#19-license)
+4. [How to Publish on GitHub](#4-how-to-publish-on-github)
+5. [Detailed Reproduction Guide](#5-detailed-reproduction-guide)
+6. [Manufacturing Scenario](#6-manufacturing-scenario)
+7. [Architecture](#7-architecture)
+8. [Runtime Flow](#8-runtime-flow)
+9. [Tech Stack](#9-tech-stack)
+10. [Repository Layout](#10-repository-layout)
+11. [Core Features](#11-core-features)
+12. [API Highlights](#12-api-highlights)
+13. [Kafka Topics](#13-kafka-topics)
+14. [Demo Script](#14-demo-script)
+15. [Technical FAQ](#15-technical-faq)
+16. [Current Status](#16-current-status)
+17. [Future Improvements](#17-future-improvements)
+18. [Portfolio Positioning](#18-portfolio-positioning)
+19. [Resume Summary](#19-resume-summary)
+20. [License](#20-license)
 
 ---
 
@@ -95,7 +104,7 @@ The goal is not to build a production-ready MES. The goal is to show the archite
 
 ## 2. Demo Preview
 
-> Add screenshots after running the project locally.
+> Screenshots and GIF assets are committed under `docs/screenshots/` so GitHub renders this section immediately.
 
 Recommended screenshot folder:
 
@@ -155,7 +164,6 @@ Install:
 ```bash
 git clone https://github.com/parthoece/fabiq-smart-factory.git
 cd fabiq-smart-factory
-cd fabiq-smart-factory
 ```
 
 ### 3.3 Start the Full Stack
@@ -188,7 +196,17 @@ docker compose down
 
 ---
 
-## 4. Detailed Reproduction Guide
+## 4. How to Publish on GitHub
+
+If you are preparing your own copy of the project for GitHub, use this short publish flow:
+
+1. Fork or clone the repository locally.
+2. Make sure the screenshots and diagrams in `docs/screenshots/` and `docs/diagrams/` are committed.
+3. Replace the clone URL in the quick-start section with your own repository URL.
+4. Push your changes with `git add .`, `git commit -m "Prepare portfolio release"`, and `git push`.
+5. Open the GitHub repository page and confirm the README renders the GIF, screenshots, and Mermaid diagrams.
+
+## 5. Detailed Reproduction Guide
 
 For a complete rebuild from scratch, refer to:
 
@@ -210,7 +228,7 @@ Use this README for the project overview. Use `RUN.md` when reproducing the proj
 
 ---
 
-## 5. Manufacturing Scenario
+## 6. Manufacturing Scenario
 
 The demo simulates **Line A**, a PCB/electronics assembly process:
 
@@ -232,7 +250,7 @@ These events are used to calculate operational metrics and support traceability.
 
 ---
 
-## 6. Architecture
+## 7. Architecture
 
 ```mermaid
 flowchart LR
@@ -250,7 +268,7 @@ flowchart LR
     KafkaUI[Kafka UI] --> Kafka
 ```
 
-### 6.1 Architecture Summary
+### 7.1 Architecture Summary
 
 The project uses an event-driven design to better reflect how manufacturing systems receive data.
 
@@ -260,7 +278,7 @@ This structure separates data generation, event transport, business logic, persi
 
 ---
 
-## 7. Runtime Flow
+## 8. Runtime Flow
 
 1. Docker Compose starts the infrastructure and application services.
 2. Postgres becomes the manufacturing data store.
@@ -275,7 +293,7 @@ This structure separates data generation, event transport, business logic, persi
 
 ---
 
-## 8. Tech Stack
+## 9. Tech Stack
 
 | Area | Technology |
 |---|---|
@@ -289,7 +307,7 @@ This structure separates data generation, event transport, business logic, persi
 
 ---
 
-## 9. Repository Layout
+## 10. Repository Layout
 
 ```text
 backend/Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api
@@ -319,39 +337,39 @@ scripts
 
 ---
 
-## 10. Core Features
+## 11. Core Features
 
-### 10.1 Machine Status
+### 11.1 Machine Status
 
 Shows current machine state for the simulated production line, including machine ID, line ID, status, current work order, good count, scrap count, and last update time.
 
-### 10.2 Work Orders
+### 11.2 Work Orders
 
 Tracks production work orders, planned quantities, good counts, scrap counts, and work-order status.
 
-### 10.3 Production Events
+### 11.3 Production Events
 
 Stores production activity from the simulator, including machine, work order, event type, quantity, part ID, and defect information.
 
-### 10.4 Downtime Tracking
+### 11.4 Downtime Tracking
 
 Records downtime events by machine, work order, reason code, duration, start time, end time, and notes.
 
-### 10.5 OEE Calculation
+### 11.5 OEE Calculation
 
 Provides OEE-style metrics using availability, performance, quality, and total OEE for a line or work order.
 
-### 10.6 Part Traceability
+### 11.6 Part Traceability
 
 Allows lookup of a part ID to see its route, latest status, machine history, work order association, and related production events.
 
-### 10.7 Dashboard
+### 11.7 Dashboard
 
 Provides a live operations view for machine status, OEE, downtime, quality, and traceability.
 
 ---
 
-## 11. API Highlights
+## 12. API Highlights
 
 The backend exposes MES-style APIs for machines, work orders, production events, downtime, OEE, and traceability.
 
@@ -391,7 +409,7 @@ http://localhost:5078/swagger
 
 ---
 
-## 12. Kafka Topics
+## 13. Kafka Topics
 
 The project is designed around manufacturing event streams.
 
@@ -417,17 +435,17 @@ http://localhost:8081
 
 ---
 
-## 13. Demo Script
+## 14. Demo Script
 
 Use this flow when showing the project in a portfolio review or interview.
 
-### 13.1 Start the System
+### 14.1 Start the System
 
 ```bash
 docker compose up -d --build
 ```
 
-### 13.2 Open the Main Screens
+### 14.2 Open the Main Screens
 
 Open:
 
@@ -435,7 +453,7 @@ Open:
 - Swagger: `http://localhost:5078/swagger`
 - Kafka UI: `http://localhost:8081`
 
-### 13.3 Show the Event Flow
+### 14.3 Show the Event Flow
 
 Explain the flow:
 
@@ -443,15 +461,15 @@ Explain the flow:
 Simulator → Kafka → Backend API → Postgres → React Dashboard
 ```
 
-### 13.4 Show Machine Status
+### 14.4 Show Machine Status
 
 Open the dashboard and show live machine status changes across the simulated line.
 
-### 13.5 Show Kafka Topics
+### 14.5 Show Kafka Topics
 
 Open Kafka UI and show the manufacturing event topics.
 
-### 13.6 Show API Endpoints
+### 14.6 Show API Endpoints
 
 Open Swagger and show endpoints for:
 
@@ -462,31 +480,31 @@ Open Swagger and show endpoints for:
 - OEE
 - Traceability
 
-### 13.7 Show Traceability
+### 14.7 Show Traceability
 
 Run a part traceability lookup and explain how Postgres keeps the history needed to investigate a part or work order.
 
-### 13.8 Explain OEE
+### 14.8 Explain OEE
 
 Explain how production counts, scrap, and downtime contribute to OEE-style reporting.
 
 ---
 
-## 14. Technical FAQ
+## 15. Technical FAQ
 
-### 14.1 Why did you use Kafka?
+### 15.1 Why did you use Kafka?
 
 Kafka makes the project closer to a real manufacturing integration environment. In a factory, machine events often arrive asynchronously from equipment, gateways, brokers, or external systems.
 
 Kafka allows producers and consumers to stay decoupled while still supporting a durable event stream. The same machine event stream could later be consumed by dashboards, alerts, analytics, reporting, or long-term OEE trend services.
 
-### 14.2 Why not just use REST between the simulator and backend?
+### 15.2 Why not just use REST between the simulator and backend?
 
 A direct REST-only flow would work for a small demo, but it would hide the real integration problem.
 
 Manufacturing systems often need to process independent machine events, handle asynchronous data, and support multiple downstream consumers. Kafka makes the event-driven nature of the system explicit.
 
-### 14.3 Why did you use Postgres?
+### 15.3 Why did you use Postgres?
 
 Postgres is a strong fit because the project focuses on production history and traceability.
 
@@ -499,13 +517,13 @@ The system needs to answer relational questions such as:
 
 A relational database is a good match for this type of queryable manufacturing history.
 
-### 14.4 Why did you build a simulator?
+### 15.4 Why did you build a simulator?
 
 The simulator makes the project demo repeatable without real factory hardware.
 
 It stands in for production equipment by generating machine status, production count, scrap, quality, and downtime events. The goal is not to pretend the simulator is a real PLC. The goal is to demonstrate the end-to-end data pipeline.
 
-### 14.5 How is this different from a normal CRUD dashboard?
+### 15.5 How is this different from a normal CRUD dashboard?
 
 This project is designed around event flow, not just manual data entry.
 
@@ -519,7 +537,7 @@ The dashboard is only the final view of a larger pipeline:
 
 That structure is closer to how real manufacturing software receives and processes data from machines and integration systems.
 
-### 14.6 How would you secure the system?
+### 15.6 How would you secure the system?
 
 For a production rollout, I would add:
 
@@ -532,7 +550,7 @@ For a production rollout, I would add:
 - Input validation for event payloads
 - Network restrictions for internal services
 
-### 14.7 What business value does this project demonstrate?
+### 15.7 What business value does this project demonstrate?
 
 The project demonstrates how a manufacturing team could gain live visibility into:
 
@@ -549,25 +567,28 @@ It shows both the current state of the line and the historical data needed to in
 
 ---
 
-## 15. Current Status
+## 16. Current Status
 
 Current portfolio MVP status:
 
 - Docker-based local demo is available.
 - Simulator-driven event flow is implemented.
 - Backend APIs support the current dashboard/API slice.
+- Health, readiness, metrics, and platform endpoints are available.
 - Frontend dashboard supports the current manufacturing KPI views.
 - Machine status, work orders, production events, downtime, OEE, and traceability are represented.
+- AI anomaly alerts are surfaced in the dashboard.
+- Prometheus and Grafana observability scaffolding is wired into Docker Compose.
+- CI build validation is configured for backend and frontend.
 - Documentation is prepared for portfolio review and interview discussion.
 
 ---
 
-## 16. Future Improvements
+## 17. Future Improvements
 
 Potential next steps:
 
 - Authentication and role-based access control
-- Prometheus and Grafana observability dashboards
 - Long-term OEE trend reporting
 - Shift-based production reports
 - MTBF and MTTR calculations
@@ -575,12 +596,11 @@ Potential next steps:
 - More realistic machine telemetry
 - Event idempotency and ordering guarantees
 - Deployment profiles for development, test, and production
-- CI pipeline for backend and frontend build checks
 - Expanded MQTT ingestion path for IIoT-style devices
 
 ---
 
-## 17. Portfolio Positioning
+## 18. Portfolio Positioning
 
 This project is intended to show system design, not only feature delivery.
 
@@ -599,18 +619,17 @@ A concise way to describe the project:
 
 ---
 
-## 18. Resume Summary
+## 19. Resume Summary
 
 Built a smart factory MES integration platform using ASP.NET Core, React, Kafka, Postgres, MQTT, and Docker.
 
-The system simulates a PCB production line, processes machine and production events, calculates OEE, tracks downtime and scrap, and provides part-level traceability through backend APIs and a live dashboard.
+The system simulates a PCB production line, processes machine and production events, calculates OEE, tracks downtime and scrap, provides part-level traceability through backend APIs and a live dashboard, and extends the pipeline with telemetry-driven maintenance alerts.
 
-
-> Built a Dockerized smart factory MES integration platform with ASP.NET Core, React, Kafka, Postgres, and MQTT, including a simulator-driven event pipeline for machine status, production counts, downtime tracking, OEE calculation, and part-level traceability.
+> Built a Dockerized smart factory MES integration platform with ASP.NET Core, React, Kafka, Postgres, MQTT, and Docker Compose, including a simulator-driven event pipeline, AI anomaly alerts, health endpoints, and Prometheus/Grafana observability.
 
 ---
 
-## 19. License
+## 20. License
 
 This project is intended for portfolio, learning, and open-source demonstration purposes.
 

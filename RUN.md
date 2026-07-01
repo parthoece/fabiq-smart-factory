@@ -32,7 +32,12 @@ docker compose up -d --build
 
 - Frontend dashboard: http://localhost:3000
 - Backend Swagger: http://localhost:5078/swagger
+- Backend health: http://localhost:5078/health
+- Backend readiness: http://localhost:5078/ready
+- Backend metrics: http://localhost:5078/metrics
+- Anomaly worker: container only, writes alerts to `maintenance.alerts`
 - Kafka UI: http://localhost:8081
+- Grafana: http://localhost:3001
 
 ### Stop everything
 
@@ -73,9 +78,11 @@ docker compose up -d --build postgres kafka kafka-ui mqtt backend simulator fron
 - `postgres` on port `5432`
 - `kafka` on port `9092`
 - `mqtt` on port `1883`
-- backend on `http://localhost:5078`, 'http://localhost:5078/swagger'
-
+- backend on `http://localhost:5078`
+- backend Swagger on `http://localhost:5078/swagger`
 - frontend on `http://localhost:3000`
+- Prometheus on `http://localhost:9090`
+- Grafana on `http://localhost:3001`
 
 ### 6. Run the backend locally instead of Docker, if preferred
 
@@ -107,6 +114,7 @@ npm run dev
 - Backend build: `dotnet build`
 - Frontend build: `npm run build`
 - Frontend lint: `npm run lint`
+- Smoke test: `scripts/run-smoke-test.sh`
 
 ### 10. Repo architecture
 
@@ -115,12 +123,14 @@ npm run dev
 - `machine-simulator/Fabiq.SmartFactory.Simulator` - Kafka-driven event generator that seeds and simulates the line
 - `database/migrations` - Postgres bootstrap SQL for local infrastructure
 - `docs` - API contract, project plan, architecture, and supporting docs
-- `infra` - Prometheus and Grafana scaffolding for later observability work
+- `infra` - Prometheus and Grafana scaffolding for observability work
 - `mqtt` - Mosquitto broker configuration
-- `scripts` - helper scripts for automation or future demo setup
+- `scripts` - helper scripts for demo startup, reset, seeding, and smoke checks
 
 ## Notes
 
 - The simulator seeds machines and work orders automatically on startup.
 - Kafka topics used by the demo are `machine.status`, `production.counts`, and `downtime.events`.
+- Additional v2 topics include `machine.telemetry` and `maintenance.alerts`.
+- Grafana uses the provisioned Prometheus datasource and dashboard under `infra/grafana/provisioning`.
 - The backend listens on port `5078` and the frontend points to that API URL.

@@ -38,15 +38,7 @@ public class MachinesController : ControllerBase
     [HttpPost("seed")]
     public async Task<ActionResult> SeedMachines()
     {
-        if (await _db.Machines.AnyAsync())
-        {
-            return Ok(new
-            {
-                message = "Machines already exist. Seed skipped."
-            });
-        }
-
-        var machines = new List<Machine>
+        var desiredMachines = new List<Machine>
         {
             new()
             {
@@ -66,6 +58,16 @@ public class MachinesController : ControllerBase
                 CurrentWorkOrderId = "WO-2026-0001",
                 GoodCount = 118,
                 ScrapCount = 4,
+                LastUpdatedAt = DateTimeOffset.UtcNow
+            },
+            new()
+            {
+                MachineId = "ASSEMBLY-01",
+                LineId = "LINE-A",
+                Status = "RUNNING",
+                CurrentWorkOrderId = "WO-2026-0001",
+                GoodCount = 104,
+                ScrapCount = 3,
                 LastUpdatedAt = DateTimeOffset.UtcNow
             },
             new()
@@ -90,13 +92,30 @@ public class MachinesController : ControllerBase
             }
         };
 
-        _db.Machines.AddRange(machines);
+        var existingMachineIds = await _db.Machines
+            .Select(machine => machine.MachineId)
+            .ToListAsync();
+
+        var machinesToAdd = desiredMachines
+            .Where(machine => !existingMachineIds.Contains(machine.MachineId))
+            .ToList();
+
+        if (machinesToAdd.Count == 0)
+        {
+            return Ok(new
+            {
+                message = "Machines already exist. Seed skipped.",
+                count = 0
+            });
+        }
+
+        _db.Machines.AddRange(machinesToAdd);
         await _db.SaveChangesAsync();
 
         return Ok(new
         {
             message = "Seed machines created.",
-            count = machines.Count
+            count = machinesToAdd.Count
         });
     }
 }

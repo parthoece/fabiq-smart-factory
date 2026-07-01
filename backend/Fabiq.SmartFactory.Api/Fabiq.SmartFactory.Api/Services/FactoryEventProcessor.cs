@@ -37,15 +37,27 @@ public sealed record DowntimeEventResult(
     DateTimeOffset EndedAt
 );
 
+public sealed record MaintenanceAlertResult(
+    string Message,
+    string AlertId,
+    string MachineId,
+    string? WorkOrderId,
+    string AlertType,
+    string Severity,
+    DateTimeOffset CreatedAt
+);
+
 public sealed class FactoryEventProcessor
 {
     private static readonly string[] AllowedMachineStatuses = ["RUNNING", "IDLE", "DOWN", "UNKNOWN"];
 
     private readonly SmartFactoryDbContext _db;
+    private readonly ApplicationMetrics _metrics;
 
-    public FactoryEventProcessor(SmartFactoryDbContext db)
+    public FactoryEventProcessor(SmartFactoryDbContext db, ApplicationMetrics metrics)
     {
         _db = db;
+        _metrics = metrics;
     }
 
     public async Task<MachineStatusUpdateResult> UpdateMachineStatusAsync(MachineStatusMessage request)
@@ -89,6 +101,7 @@ public sealed class FactoryEventProcessor
         });
 
         await _db.SaveChangesAsync();
+        _metrics.IncrementMachineStatusEventsProcessed();
 
         return new MachineStatusUpdateResult(
             machine.MachineId,
@@ -166,6 +179,7 @@ public sealed class FactoryEventProcessor
 
         _db.ProductionEvents.Add(productionEvent);
         await _db.SaveChangesAsync();
+        _metrics.IncrementProductionEventsProcessed();
 
         return new ProductionEventResult(
             "Production event created.",
@@ -234,6 +248,7 @@ public sealed class FactoryEventProcessor
 
         _db.DowntimeEvents.Add(downtimeEvent);
         await _db.SaveChangesAsync();
+        _metrics.IncrementDowntimeEventsProcessed();
 
         return new DowntimeEventResult(
             "Downtime event created.",
@@ -245,6 +260,79 @@ public sealed class FactoryEventProcessor
             downtimeEvent.DurationMinutes,
             downtimeEvent.StartedAt,
             downtimeEvent.EndedAt
+        );
+    }
+
+    public async Task<MaintenanceAlertResult> RecordMaintenanceAlertAsync(MaintenanceAlertMessage request)
+    {
+        if (string.IsNullOrWhiteSpace(request.AlertId))
+        {
+            throw new ArgumentException("AlertId is required.", nameof(request.AlertId));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.MachineId))
+        {
+            throw new ArgumentException("MachineId is required.", nameof(request.MachineId));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.AlertType))
+        {
+            throw new ArgumentException("AlertType is required.", nameof(request.AlertType));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Severity))
+        {
+            throw new ArgumentException("Severity is required.", nameof(request.Severity));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            throw new ArgumentException("Message is required.", nameof(request.Message));
+        }
+
+        var duplicateAlert = await _db.MaintenanceAlerts.AnyAsync(a => a.AlertId == request.AlertId);
+        if (duplicateAlert)
+        {
+            return new MaintenanceAlertResult(
+                "Maintenance alert already existed.",
+                request.AlertId,
+                request.MachineId,
+                request.WorkOrderId,
+                request.AlertType,
+                request.Severity,
+                request.CreatedAt
+            );
+        }
+
+        var alert = new MaintenanceAlert
+        {
+            AlertId = request.AlertId,
+            MachineId = request.MachineId.Trim(),
+            WorkOrderId = string.IsNullOrWhiteSpace(request.WorkOrderId) ? null : request.WorkOrderId.Trim(),
+            AlertType = request.AlertType.Trim(),
+            Severity = request.Severity.Trim(),
+            Message = request.Message.Trim(),
+            SourceEventId = request.SourceEventId,
+            TemperatureC = request.TemperatureC,
+            VibrationMmS = request.VibrationMmS,
+            CycleTimeSeconds = request.CycleTimeSeconds,
+            ErrorCount = request.ErrorCount,
+            ScrapRate = request.ScrapRate,
+            CreatedAt = request.CreatedAt
+        };
+
+        _db.MaintenanceAlerts.Add(alert);
+        await _db.SaveChangesAsync();
+        _metrics.IncrementMaintenanceAlertsCreated();
+
+        return new MaintenanceAlertResult(
+            "Maintenance alert created.",
+            alert.AlertId,
+            alert.MachineId,
+            alert.WorkOrderId,
+            alert.AlertType,
+            alert.Severity,
+            alert.CreatedAt
         );
     }
 }

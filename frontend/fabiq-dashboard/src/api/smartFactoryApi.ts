@@ -52,6 +52,23 @@ export type ProductionEvent = {
   createdAt: string;
 };
 
+export type MaintenanceAlert = {
+  alertId: string;
+  machineId: string;
+  workOrderId?: string | null;
+  alertType: string;
+  severity: string;
+  message: string;
+  sourceEventId?: string | null;
+  temperatureC?: number | null;
+  vibrationMmS?: number | null;
+  cycleTimeSeconds?: number | null;
+  errorCount?: number | null;
+  scrapRate?: number | null;
+  createdAt: string;
+  resolvedAt?: string | null;
+};
+
 export type PartTraceability = {
   partId: string;
   finalStatus: string;
@@ -101,6 +118,14 @@ export async function getDowntimeSummary(lineId: string) {
 export async function getRecentProductionEvents() {
   const response = await api.get<ProductionEvent[]>("/api/productionevents/recent", {
     params: { limit: 100 },
+  });
+
+  return response.data;
+}
+
+export async function getActiveMaintenanceAlerts() {
+  const response = await api.get<MaintenanceAlert[]>("/api/maintenancealerts/active", {
+    params: { limit: 20 },
   });
 
   return response.data;

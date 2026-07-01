@@ -45,6 +45,27 @@ input {
   color: #cbd5e1;
 }
 
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.status-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.status-card strong {
+  display: block;
+  font-size: 28px;
+  margin: 6px 0 4px;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -144,6 +165,26 @@ button:hover {
   color: #334155;
 }
 
+.severity-critical {
+  background: #7f1d1d;
+  color: #fff1f2;
+}
+
+.severity-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.severity-info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.severity-unknown {
+  background: #e2e8f0;
+  color: #334155;
+}
+
 .muted {
   color: #64748b;
 }
@@ -221,6 +262,34 @@ button:hover {
   padding: 10px 12px;
 }
 
+.trace-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.trace-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trace-chip {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.trace-chip:hover {
+  background: #dbeafe;
+}
+
 .error-text {
   color: #b91c1c;
   background: #fee2e2;
@@ -263,6 +332,7 @@ th {
   }
 
   .hero,
+  .status-strip,
   .dashboard-grid {
     grid-template-columns: 1fr;
   }

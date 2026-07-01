@@ -26,3 +26,31 @@ public sealed record DowntimeEventMessage(
     DateTimeOffset? StartedAt,
     string? Notes
 );
+
+public sealed record MachineTelemetryMessage(
+    string EventId,
+    string MachineId,
+    string? WorkOrderId,
+    DateTimeOffset Timestamp,
+    decimal TemperatureC,
+    decimal VibrationMmS,
+    decimal CycleTimeSeconds,
+    int ErrorCount,
+    decimal ScrapRate
+);
+
+public sealed record MaintenanceAlertMessage(
+    string AlertId,
+    string MachineId,
+    string? WorkOrderId,
+    string AlertType,
+    string Severity,
+    string Message,
+    string? SourceEventId,
+    decimal? TemperatureC,
+    decimal? VibrationMmS,
+    decimal? CycleTimeSeconds,
+    int? ErrorCount,
+    decimal? ScrapRate,
+    DateTimeOffset CreatedAt
+);

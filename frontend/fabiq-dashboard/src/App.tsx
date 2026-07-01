@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  getActiveMaintenanceAlerts,
   getDowntimeSummary,
   getLineOee,
   getMachines,
@@ -9,12 +10,14 @@ import {
 import type {
   DowntimeSummary,
   Machine,
+  MaintenanceAlert,
   OeeResponse,
   ProductionEvent,
 } from "./api/smartFactoryApi";
 
 import { DowntimeChart } from "./components/DowntimeChart";
 import { MachineStatusCards } from "./components/MachineStatusCards";
+import { MaintenanceAlertsPanel } from "./components/MaintenanceAlertsPanel";
 import { OeePanel } from "./components/OeePanel";
 import { QualityChart } from "./components/QualityChart";
 import { TraceabilitySearch } from "./components/TraceabilitySearch";
@@ -27,25 +30,32 @@ function App() {
   const [oee, setOee] = useState<OeeResponse | null>(null);
   const [downtime, setDowntime] = useState<DowntimeSummary[]>([]);
   const [events, setEvents] = useState<ProductionEvent[]>([]);
+  const [alerts, setAlerts] = useState<MaintenanceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const recentPartIds = Array.from(
+    new Set(events.map((event) => event.partId).filter((partId): partId is string => Boolean(partId)))
+  ).slice(0, 8);
+  const activeAlertMachine = alerts[0]?.machineId ?? "None";
 
   async function loadDashboard() {
     try {
       setError("");
 
-      const [machinesData, oeeData, downtimeData, eventsData] =
+      const [machinesData, oeeData, downtimeData, eventsData, alertsData] =
         await Promise.all([
           getMachines(),
           getLineOee(LINE_ID),
           getDowntimeSummary(LINE_ID),
           getRecentProductionEvents(),
+          getActiveMaintenanceAlerts(),
         ]);
 
       setMachines(machinesData);
       setOee(oeeData);
       setDowntime(downtimeData);
       setEvents(eventsData);
+      setAlerts(alertsData);
     } catch {
       setError("Unable to load dashboard data. Check that the backend API is running.");
     } finally {
@@ -76,6 +86,24 @@ function App() {
         <button onClick={loadDashboard}>Refresh</button>
       </header>
 
+      <section className="status-strip">
+        <div className="status-card">
+          <span className="metric-label">AI anomaly alerts</span>
+          <strong>{alerts.length}</strong>
+          <p className="muted">Active alerts from the anomaly worker</p>
+        </div>
+        <div className="status-card">
+          <span className="metric-label">Most recent alert machine</span>
+          <strong>{activeAlertMachine}</strong>
+          <p className="muted">Latest machine flagged by telemetry</p>
+        </div>
+        <div className="status-card">
+          <span className="metric-label">Traceable parts</span>
+          <strong>{recentPartIds.length}</strong>
+          <p className="muted">Click a recent part ID to search traceability</p>
+        </div>
+      </section>
+
       {loading && <p className="muted">Loading dashboard...</p>}
       {error && <p className="error-text">{error}</p>}
 
@@ -90,8 +118,10 @@ function App() {
 
           <div className="dashboard-grid">
             <QualityChart events={events} />
-            <TraceabilitySearch />
+            <TraceabilitySearch recentPartIds={recentPartIds} />
           </div>
+
+          <MaintenanceAlertsPanel alerts={alerts} />
         </>
       )}
     </main>

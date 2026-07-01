@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build backend
+        working-directory: backend/Fabiq.SmartFactory.Api
+        run: dotnet build Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api.csproj
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/fabiq-dashboard/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend/fabiq-dashboard
+        run: npm install
+
+      - name: Build frontend
+        working-directory: frontend/fabiq-dashboard
+        run: npm run build
+
+      - name: Validate Docker Compose
+        run: docker compose config

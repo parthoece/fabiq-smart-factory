@@ -49,14 +49,16 @@ public sealed class KafkaIngestionHostedService : BackgroundService
     {
         _options.MachineStatusTopic,
         _options.ProductionTopic,
-        _options.DowntimeTopic
+        _options.DowntimeTopic,
+        _options.MaintenanceAlertsTopic
     });
 
     _logger.LogInformation("Kafka ingestion started for topics: {Topics}", string.Join(", ", new[]
     {
         _options.MachineStatusTopic,
         _options.ProductionTopic,
-        _options.DowntimeTopic
+        _options.DowntimeTopic,
+        _options.MaintenanceAlertsTopic
     }));
 
     try
@@ -157,6 +159,15 @@ public sealed class KafkaIngestionHostedService : BackgroundService
             var message = JsonSerializer.Deserialize<DowntimeEventMessage>(payload, JsonOptions())
                 ?? throw new InvalidOperationException("Kafka downtime payload was empty.");
             await processor.RecordDowntimeEventAsync(message);
+            return;
+        }
+
+        if (topic == _options.MaintenanceAlertsTopic)
+        {
+            var message = JsonSerializer.Deserialize<MaintenanceAlertMessage>(payload, JsonOptions())
+                ?? throw new InvalidOperationException("Kafka maintenance alert payload was empty.");
+            await processor.RecordMaintenanceAlertAsync(message);
+            return;
         }
     }
 

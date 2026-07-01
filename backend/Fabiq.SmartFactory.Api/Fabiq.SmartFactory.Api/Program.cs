@@ -8,13 +8,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<SmartFactoryDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SmartFactoryDb")));
 
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
+builder.Services.AddSingleton<ApplicationMetrics>();
 builder.Services.AddScoped<FactoryEventProcessor>();
 builder.Services.AddHostedService<KafkaIngestionHostedService>();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -44,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler("/error");
 
 if (!app.Environment.IsDevelopment())
 {

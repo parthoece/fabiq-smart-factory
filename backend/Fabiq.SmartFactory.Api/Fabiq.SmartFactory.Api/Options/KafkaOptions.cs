@@ -12,5 +12,9 @@ public sealed class KafkaOptions
 
     public string DowntimeTopic { get; set; } = "downtime.events";
 
+    public string TelemetryTopic { get; set; } = "machine.telemetry";
+
+    public string MaintenanceAlertsTopic { get; set; } = "maintenance.alerts";
+
     public int PollTimeoutMilliseconds { get; set; } = 1000;
 }

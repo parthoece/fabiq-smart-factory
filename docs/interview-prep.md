@@ -20,13 +20,35 @@ Why Postgres? Because the business value here is not just live status. It is tra
 
 Why a simulator? Because for a portfolio project, I wanted to prove the full system behavior without depending on physical hardware. The simulator is not pretending to be a PLC or a real machine controller; it is a controlled event generator so I can demonstrate the architecture, the data flow, and the operational dashboard in a repeatable way.
 
+## AI Extension
+
+The v2 extension adds a telemetry-driven anomaly detection worker on top of the same event pipeline.
+
+I would explain it like this in an interview:
+
+I extended the platform with `machine.telemetry` events for temperature, vibration, cycle time, error count, and scrap rate. A separate anomaly worker consumes that stream, applies rule-based detection, and publishes `maintenance.alerts` back into the platform. The backend stores those alerts, and the dashboard shows them in the same UI as the operational KPIs.
+
+The value of this extension is that it shows how the system can move from visibility to action. Instead of only saying the line is running or down, the platform can now identify likely maintenance issues before they become larger interruptions.
+
+## Observability
+
+If asked about observability, I would say I added the basics that matter for a platform story:
+
+- a `/health` endpoint for service liveness
+- a `/ready` endpoint for database readiness
+- a `/metrics` endpoint for event counters
+- Prometheus scraping of the backend metrics endpoint
+- a provisioned Grafana dashboard for the counters
+
+That keeps the story practical: the demo is not pretending to be a full production observability stack, but it does show the right shape.
+
 ## Conclusion
 
 The end result is a portfolio project that shows more than feature delivery. It shows that I can think in terms of systems: event flow, data ownership, operational visibility, and tradeoffs between coupling and flexibility.
 
 If I were closing the story in an interview, I’d say:
 
-"I intentionally designed the system around the realities of factory software. I used Kafka for decoupled event flow, Postgres for traceable history, and a simulator so the whole pipeline could be demonstrated without specialized hardware. The result is not just a dashboard; it is a small but realistic manufacturing integration platform."
+"I intentionally designed the system around the realities of factory software. I used Kafka for decoupled event flow, Postgres for traceable history, a simulator so the whole pipeline could be demonstrated without specialized hardware, and then extended it with telemetry-driven anomaly detection and observability so the platform story goes beyond a basic dashboard. The result is a small but realistic manufacturing integration platform."
 
 ## Demo Script
 
@@ -34,8 +56,9 @@ If I were closing the story in an interview, I’d say:
 2. Open the frontend at `http://localhost:3000`.
 3. Open Kafka UI at `http://localhost:8081`.
 4. Show machine status changes and recent production events.
-5. Trigger a traceability lookup for a part ID.
-6. Explain how downtime and scrap affect OEE.
+5. Click one of the recent part IDs in the traceability panel and run the lookup.
+6. Open the AI maintenance alert panel and explain how telemetry becomes a maintenance signal.
+7. Explain how downtime and scrap affect OEE.
 
 ## Q&A
 
@@ -59,6 +82,14 @@ It is a deterministic event generator, not a hardware interface. It stands in fo
 
 I would add authentication, authorization, better observability, long-term time-series reporting, alerting, and more realistic machine telemetry. I would also separate read models for analytics and add stronger validation around event ordering and idempotency.
 
+### What did the AI extension add?
+
+It added a second layer on top of the manufacturing pipeline: telemetry ingestion, anomaly detection, alert persistence, and alert visibility in the dashboard. That shows how the platform can move from reporting to proactive maintenance.
+
+### How would you explain the observability setup?
+
+I added a lightweight production-style baseline: health, readiness, and metrics endpoints, Prometheus scraping, and a Grafana dashboard. It is intentionally small, but it demonstrates how you would monitor a platform like this in practice.
+
 ### How do you explain the value to a manufacturing team?
 
 I would say it gives them a live view of line health, a traceable event history, and a foundation for OEE and downtime analysis. It helps operations see what is happening now, and helps engineering understand why performance changed over time.
@@ -75,6 +106,9 @@ I would add auth at the API layer, use service-to-service credentials for broker
 - Role-based access control
 - Machine telemetry and OEE trends over time
 - Observability with Prometheus and Grafana
+- Telemetry-driven maintenance alerts
+- Readiness and metrics endpoints
+- Grafana dashboard provisioning
 
 ## Portfolio Positioning
 

@@ -2,7 +2,11 @@ import { type FormEvent, useState } from "react";
 import { getPartTraceability } from "../api/smartFactoryApi";
 import type { PartTraceability } from "../api/smartFactoryApi";
 
-export function TraceabilitySearch() {
+type Props = {
+  recentPartIds: string[];
+};
+
+export function TraceabilitySearch({ recentPartIds }: Props) {
   const [partId, setPartId] = useState("");
   const [result, setResult] = useState<PartTraceability | null>(null);
   const [error, setError] = useState("");
@@ -41,6 +45,24 @@ export function TraceabilitySearch() {
         />
         <button type="submit">Search</button>
       </form>
+
+      {recentPartIds.length > 0 && (
+        <div className="trace-suggestions">
+          <span className="muted">Recent part IDs:</span>
+          <div className="trace-chip-row">
+            {recentPartIds.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className="trace-chip"
+                onClick={() => setPartId(id)}
+              >
+                {id}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && <p className="error-text">{error}</p>}
 
