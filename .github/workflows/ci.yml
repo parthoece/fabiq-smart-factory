@@ -93,3 +93,4 @@ jobs:
           test -f docs/portfolio.md
           test -f docs/roadmap.md
           test -f docs/openapi/openapi.json
+          test -f docs/releases/v1.0.0.md
