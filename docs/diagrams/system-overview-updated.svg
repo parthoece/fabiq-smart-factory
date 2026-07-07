@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="680" viewBox="0 0 1100 680" role="img" aria-labelledby="title desc">
+  <title id="title">Fabiq Smart Factory MES Integration Platform system overview</title>
+  <desc id="desc">Architecture diagram showing machine simulator, Kafka event streams, ASP.NET Core backend API, AI anomaly worker, PostgreSQL, React dashboard, Kafka UI, Swagger UI, MQTT broker, Prometheus, and Grafana.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#64748B"/>
+    </marker>
+    <style>
+      .bg { fill: #F8FAFC; }
+      .title { font: 700 28px Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 15px Arial, sans-serif; fill: #475569; }
+      .box { stroke-width: 1.5; rx: 18; }
+      .label { font: 700 16px Arial, sans-serif; fill: #0F172A; text-anchor: middle; }
+      .small { font: 400 13px Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .tiny { font: 400 12px Arial, sans-serif; fill: #64748B; text-anchor: middle; }
+      .arrow { stroke: #64748B; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 7 7; }
+      .section { font: 700 13px Arial, sans-serif; fill: #334155; text-anchor: middle; letter-spacing: .5px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1100" height="680" rx="24"/>
+  <text class="title" x="550" y="42" text-anchor="middle">Fabiq Smart Factory MES Integration Platform</text>
+  <text class="subtitle" x="550" y="68" text-anchor="middle">Simulator-driven MES events flow through Kafka into APIs, Postgres, anomaly alerts, observability, and a live dashboard</text>
+
+  <text class="section" x="135" y="112">SHOP-FLOOR SIMULATION</text>
+  <rect class="box" x="45" y="135" width="180" height="95" fill="#E0F2FE" stroke="#38BDF8"/>
+  <text class="label" x="135" y="169">Machine</text>
+  <text class="label" x="135" y="191">Simulator</text>
+  <text class="small" x="135" y="214">PCB line events</text>
+
+  <text class="section" x="365" y="112">EVENT BACKBONE</text>
+  <rect class="box" x="275" y="135" width="180" height="115" fill="#FEF3C7" stroke="#F59E0B"/>
+  <text class="label" x="365" y="169">Kafka</text>
+  <text class="label" x="365" y="191">Event Streams</text>
+  <text class="small" x="365" y="214">status / telemetry</text>
+  <text class="small" x="365" y="234">counts / downtime / alerts</text>
+
+  <text class="section" x="595" y="112">APPLICATION SERVICES</text>
+  <rect class="box" x="505" y="135" width="180" height="95" fill="#DCFCE7" stroke="#22C55E"/>
+  <text class="label" x="595" y="169">ASP.NET Core</text>
+  <text class="label" x="595" y="191">Backend API</text>
+  <text class="small" x="595" y="214">process + expose APIs</text>
+
+  <rect class="box" x="505" y="295" width="180" height="95" fill="#EDE9FE" stroke="#8B5CF6"/>
+  <text class="label" x="595" y="329">AI Anomaly</text>
+  <text class="label" x="595" y="351">Worker</text>
+  <text class="small" x="595" y="374">telemetry rules → alerts</text>
+
+  <text class="section" x="365" y="420">DATA STORE</text>
+  <rect class="box" x="275" y="445" width="180" height="95" fill="#F3E8FF" stroke="#A855F7"/>
+  <text class="label" x="365" y="479">Postgres</text>
+  <text class="label" x="365" y="501">Database</text>
+  <text class="small" x="365" y="524">history + traceability</text>
+
+  <text class="section" x="595" y="420">USER EXPERIENCE</text>
+  <rect class="box" x="505" y="445" width="180" height="95" fill="#FFE4E6" stroke="#FB7185"/>
+  <text class="label" x="595" y="479">React</text>
+  <text class="label" x="595" y="501">Dashboard</text>
+  <text class="small" x="595" y="524">KPIs + MES views</text>
+
+  <text class="section" x="830" y="112">DEV / DEMO TOOLS</text>
+  <rect class="box" x="760" y="135" width="140" height="70" fill="#E2E8F0" stroke="#94A3B8"/>
+  <text class="label" x="830" y="166">Swagger</text>
+  <text class="small" x="830" y="188">API docs</text>
+
+  <rect class="box" x="760" y="235" width="140" height="70" fill="#E2E8F0" stroke="#94A3B8"/>
+  <text class="label" x="830" y="266">Kafka UI</text>
+  <text class="small" x="830" y="288">topics + messages</text>
+
+  <text class="section" x="830" y="420">OBSERVABILITY</text>
+  <rect class="box" x="760" y="445" width="140" height="70" fill="#F1F5F9" stroke="#94A3B8"/>
+  <text class="label" x="830" y="476">Prometheus</text>
+  <text class="small" x="830" y="498">metrics scrape</text>
+
+  <rect class="box" x="930" y="445" width="125" height="70" fill="#F1F5F9" stroke="#94A3B8"/>
+  <text class="label" x="992.5" y="476">Grafana</text>
+  <text class="small" x="992.5" y="498">dashboards</text>
+
+  <text class="section" x="135" y="420">FUTURE IIOT PATH</text>
+  <rect class="box" x="45" y="445" width="180" height="95" fill="#ECFEFF" stroke="#06B6D4"/>
+  <text class="label" x="135" y="482">MQTT Broker</text>
+  <text class="small" x="135" y="506">future device ingest</text>
+
+  <!-- Main manufacturing event flow -->
+  <path class="arrow" d="M225 183 H265"/>
+  <path class="arrow" d="M455 183 H495"/>
+  <path class="arrow" d="M595 230 V435"/>
+  <path class="arrow" d="M505 492 H465"/>
+  <path class="arrow" d="M595 445 V400"/>
+
+  <!-- Telemetry and alerting flow -->
+  <path class="arrow" d="M455 220 C500 260 530 285 565 295"/>
+  <path class="arrow" d="M565 295 C505 275 455 255 420 245"/>
+  <path class="arrow" d="M685 342 C730 342 730 220 685 205"/>
+
+  <!-- Tooling -->
+  <path class="arrow" d="M685 170 H750"/>
+  <path class="arrow" d="M455 240 C570 310 645 305 750 270"/>
+  <path class="arrow" d="M760 480 H695"/>
+  <path class="arrow" d="M900 480 H920"/>
+
+  <!-- Future MQTT path -->
+  <path class="arrow dashed" d="M225 493 C335 600 500 600 570 540"/>
+
+  <text class="tiny" x="248" y="169">publish</text>
+  <text class="tiny" x="478" y="169">consume</text>
+  <text class="tiny" x="640" y="326" transform="rotate(90 640 326)">persist + query</text>
+  <text class="tiny" x="515" y="270">telemetry</text>
+  <text class="tiny" x="478" y="255">maintenance.alerts</text>
+  <text class="tiny" x="718" y="326" transform="rotate(-70 718 326)">alerts</text>
+  <text class="tiny" x="728" y="464">/metrics</text>
+  <text class="tiny" x="910" y="464">datasource</text>
+  <text class="tiny" x="405" y="610">future MQTT/IIoT ingestion</text>
+</svg>

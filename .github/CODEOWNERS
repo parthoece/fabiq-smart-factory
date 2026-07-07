@@ -1,0 +1,24 @@
+# Code Owners
+
+# Default owner for all files
+* @parthoece
+
+# Documentation
+/docs/ @parthoece
+README.md @parthoece
+RUN.md @parthoece
+
+# Backend
+/backend/ @parthoece
+
+# Frontend
+/frontend/ @parthoece
+
+# Simulator and AI worker
+/machine-simulator/ @parthoece
+/ai-anomaly-service/ @parthoece
+
+# Infrastructure
+/infra/ @parthoece
+/docker-compose.yml @parthoece
+/.github/ @parthoece

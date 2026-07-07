@@ -1,11 +1,25 @@
-name: ci
+name: CI
 
 on:
   push:
+    branches:
+      - main
+      - "feature/**"
+      - "release/**"
   pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  backend:
+    name: Backend build
     runs-on: ubuntu-latest
 
     steps:
@@ -17,9 +31,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Restore backend
+        working-directory: backend/Fabiq.SmartFactory.Api
+        run: dotnet restore Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api.csproj
+
       - name: Build backend
         working-directory: backend/Fabiq.SmartFactory.Api
-        run: dotnet build Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api.csproj
+        run: dotnet build Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api.csproj --configuration Release --no-restore
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,11 +56,40 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: frontend/fabiq-dashboard
-        run: npm install
+        run: npm ci
 
       - name: Build frontend
         working-directory: frontend/fabiq-dashboard
         run: npm run build
 
+  compose-and-docs:
+    name: Compose and documentation checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Validate Docker Compose
         run: docker compose config
+
+      - name: Verify required documentation files
+        run: |
+          test -f README.md
+          test -f RUN.md
+          test -f CHANGELOG.md
+          test -f CONTRIBUTING.md
+          test -f SECURITY.md
+          test -f CODE_OF_CONDUCT.md
+          test -f docs/architecture.md
+          test -f docs/runtime-flow.md
+          test -f docs/deployment.md
+          test -f docs/api-reference.md
+          test -f docs/kafka-topics.md
+          test -f docs/troubleshooting.md
+          test -f docs/technical-faq.md
+          test -f docs/design-decisions.md
+          test -f docs/demo-guide.md
+          test -f docs/portfolio.md
+          test -f docs/roadmap.md
+          test -f docs/openapi/openapi.json

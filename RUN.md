@@ -1,90 +1,65 @@
-# Run Guide
+# Local Development Guide
 
-## Quick Run
+This guide explains how to set up, run, verify, and reset the **Fabiq Smart Factory MES Integration Platform** in a local development environment.
 
-This is the fastest path for a local demo.
+For architecture and design details, see the documentation in the `docs/` directory.
 
-### Required software
+---
 
-- Docker Desktop with Docker Compose
-- .NET 8 SDK
-- Entity Framework Core CLI: `dotnet-ef`
-- Node.js 22 or newer
-- npm
+# Prerequisites
 
-If you do not already have the EF Core CLI, install it with:
+| Software | Version |
+|----------|---------|
+| Docker Desktop | Latest |
+| Docker Compose | Included |
+| .NET SDK | 8.0+ |
+| Entity Framework CLI | `dotnet-ef` |
+| Node.js | 22+ |
+| npm | Latest |
+
+Install EF CLI if needed:
 
 ```bash
 dotnet tool install --global dotnet-ef
 ```
 
-### Windows note
+# Clone
 
-The repo paths and commands in this guide are written for Windows PowerShell, but the Docker and .NET commands are the same on macOS and Linux with only path syntax adjusted.
+```bash
+git clone https://github.com/parthoece/fabiq-smart-factory.git
+cd fabiq-smart-factory
+```
 
-### Start everything
+# Start
 
 ```bash
 docker compose up -d --build
 ```
 
-### Open the app
+# Endpoints
 
-- Frontend dashboard: http://localhost:3000
-- Backend Swagger: http://localhost:5078/swagger
-- Backend health: http://localhost:5078/health
-- Backend readiness: http://localhost:5078/ready
-- Backend metrics: http://localhost:5078/metrics
-- Anomaly worker: container only, writes alerts to `maintenance.alerts`
+- Dashboard: http://localhost:3000
+- Backend: http://localhost:5078
+- Swagger: http://localhost:5078/swagger
+- Health: http://localhost:5078/health
+- Ready: http://localhost:5078/ready
+- Metrics: http://localhost:5078/metrics
 - Kafka UI: http://localhost:8081
+- Prometheus: http://localhost:9090
 - Grafana: http://localhost:3001
 
-### Stop everything
+# Verify
 
 ```bash
-docker compose down
+docker compose ps
+curl http://localhost:5078/health
+docker logs fabiq-backend --tail=100
+docker logs fabiq-simulator --tail=100
 ```
 
-## Full Rebuild
+# Local Development
 
-Use this if you want to rebuild the project from scratch on a clean machine.
-
-### 1. Install prerequisites
-
-- Install Docker Desktop
-- Install .NET 8 SDK
-- Install Node.js 22+
-- Install npm (bundled with Node)
-
-### 2. Clone the repository
-
-```bash
-git clone <repo-url>
-cd fabiq-smart-factory
-```
-
-### 3. Create local config files
-
-Copy [.env.example](.env.example) to `.env` if you want to override local values.
-
-### 4. Build and run infrastructure
-
-```bash
-docker compose up -d --build postgres kafka kafka-ui mqtt backend simulator frontend
-```
-
-### 5. Verify services
-
-- `postgres` on port `5432`
-- `kafka` on port `9092`
-- `mqtt` on port `1883`
-- backend on `http://localhost:5078`
-- backend Swagger on `http://localhost:5078/swagger`
-- frontend on `http://localhost:3000`
-- Prometheus on `http://localhost:9090`
-- Grafana on `http://localhost:3001`
-
-### 6. Run the backend locally instead of Docker, if preferred
+Backend:
 
 ```bash
 cd backend/Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api
@@ -93,7 +68,7 @@ dotnet ef database update
 dotnet run
 ```
 
-### 7. Run the simulator locally instead of Docker, if preferred
+Simulator:
 
 ```bash
 cd machine-simulator/Fabiq.SmartFactory.Simulator
@@ -101,7 +76,7 @@ dotnet restore
 dotnet run
 ```
 
-### 8. Run the frontend locally instead of Docker, if preferred
+Frontend:
 
 ```bash
 cd frontend/fabiq-dashboard
@@ -109,28 +84,49 @@ npm install
 npm run dev
 ```
 
-### 9. Optional checks
+# Common Commands
 
-- Backend build: `dotnet build`
-- Frontend build: `npm run build`
-- Frontend lint: `npm run lint`
-- Smoke test: `scripts/run-smoke-test.sh`
+Start:
 
-### 10. Repo architecture
+```bash
+docker compose up -d --build
+```
 
-- `backend/Fabiq.SmartFactory.Api/Fabiq.SmartFactory.Api` - ASP.NET Core API, EF Core models, Kafka ingestion, and business logic
-- `frontend/fabiq-dashboard` - Vite React dashboard for live manufacturing KPIs
-- `machine-simulator/Fabiq.SmartFactory.Simulator` - Kafka-driven event generator that seeds and simulates the line
-- `database/migrations` - Postgres bootstrap SQL for local infrastructure
-- `docs` - API contract, project plan, architecture, and supporting docs
-- `infra` - Prometheus and Grafana scaffolding for observability work
-- `mqtt` - Mosquitto broker configuration
-- `scripts` - helper scripts for demo startup, reset, seeding, and smoke checks
+Stop:
 
-## Notes
+```bash
+docker compose down
+```
 
-- The simulator seeds machines and work orders automatically on startup.
-- Kafka topics used by the demo are `machine.status`, `production.counts`, and `downtime.events`.
-- Additional v2 topics include `machine.telemetry` and `maintenance.alerts`.
-- Grafana uses the provisioned Prometheus datasource and dashboard under `infra/grafana/provisioning`.
-- The backend listens on port `5078` and the frontend points to that API URL.
+Reset:
+
+```bash
+docker compose down --remove-orphans -v
+```
+
+# Windows Scripts
+
+```powershell
+.abiq-on.ps1
+.abiq-off.ps1
+.abiq-reset.ps1
+```
+
+# Build Checks
+
+```bash
+dotnet build
+npm run build
+npm run lint
+```
+
+# Documentation
+
+- README.md
+- docs/architecture.md
+- docs/runtime-flow.md
+- docs/deployment.md
+- docs/api-reference.md
+- docs/kafka-topics.md
+- docs/troubleshooting.md
+- docs/technical-faq.md
