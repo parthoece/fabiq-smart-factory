@@ -23,60 +23,109 @@ var telemetryTopic = Environment.GetEnvironmentVariable("KAFKA_TELEMETRY_TOPIC")
 
 var intervalMs = ReadInt("SIMULATOR_INTERVAL_MS", 4000);
 var iterations = ReadInt("SIMULATOR_ITERATIONS", 0);
+
 var seedFirst = !string.Equals(
     Environment.GetEnvironmentVariable("SIMULATOR_SKIP_SEED"),
     "true",
     StringComparison.OrdinalIgnoreCase);
 
-var http = new HttpClient
+ValidateConfiguration(
+    baseUrl,
+    bootstrapServers,
+    machineStatusTopic,
+    productionTopic,
+    downtimeTopic,
+    telemetryTopic,
+    intervalMs);
+
+using var cts = new CancellationTokenSource();
+
+Console.CancelKeyPress += (_, eventArgs) =>
 {
-    BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/")
+    eventArgs.Cancel = true;
+    cts.Cancel();
+};
+
+AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+{
+    cts.Cancel();
+};
+
+var stoppingToken = cts.Token;
+
+using var http = new HttpClient
+{
+    BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/"),
+    Timeout = TimeSpan.FromSeconds(10)
 };
 
 using var producer = new ProducerBuilder<Null, string>(new ProducerConfig
 {
     BootstrapServers = bootstrapServers,
     AllowAutoCreateTopics = true,
-    Acks = Acks.All
+    Acks = Acks.All,
+    EnableIdempotence = true,
+    MessageTimeoutMs = 10000,
+    RequestTimeoutMs = 5000
 }).Build();
 
 Console.WriteLine($"Smart Factory simulator targeting {http.BaseAddress}");
 Console.WriteLine($"Kafka bootstrap servers: {bootstrapServers}");
 
-await WaitForBackendAsync(http);
-
-if (seedFirst)
+try
 {
-    await ExecuteWithRetryAsync(async () =>
+    await WaitForBackendAsync(http, stoppingToken);
+    await WaitForKafkaAsync(producer, stoppingToken);
+
+    if (seedFirst)
     {
-        await EnsureSeedAsync(http);
-        return true;
-    }, "seeding backend data");
-}
-
-var activeWorkOrderId = await ExecuteWithRetryAsync(() => ResolveActiveWorkOrderIdAsync(http), "reading active work order") ?? "WO-2026-0001";
-var machineIds = new[] { "SMT-01", "AOI-01", "ASSEMBLY-01", "TEST-01", "PACKING-01" };
-var cycle = 0;
-
-while (iterations <= 0 || cycle < iterations)
-{
-    cycle++;
-
-    var partId = $"PCB-{DateTime.UtcNow:yyyyMMddHHmmss}-{cycle:000}";
-    Console.WriteLine($"Cycle {cycle}: simulating {partId} on {activeWorkOrderId}");
-
-    foreach (var machineId in machineIds)
-    {
-        await PublishAsync(producer, machineStatusTopic, new MachineStatusMessage(
-            machineId,
-            "RUNNING",
-            activeWorkOrderId,
-            "Simulator heartbeat",
-            DateTimeOffset.UtcNow
-        ));
+        await ExecuteWithRetryAsync(async () =>
+        {
+            await EnsureSeedAsync(http, stoppingToken);
+            return true;
+        }, "seeding backend data", stoppingToken);
     }
 
-    foreach (var machineId in machineIds)
+    var activeWorkOrderId = await ExecuteWithRetryAsync(
+        async () =>
+        {
+            var workOrderId = await ResolveActiveWorkOrderIdAsync(http, stoppingToken);
+
+            if (string.IsNullOrWhiteSpace(workOrderId))
+            {
+                throw new InvalidOperationException("No active work order was returned by the backend.");
+            }
+
+            return workOrderId;
+        },
+        "reading active work order",
+        stoppingToken);
+
+    var machineIds = new[] { "SMT-01", "AOI-01", "ASSEMBLY-01", "TEST-01", "PACKING-01" };
+    var cycle = 0;
+
+    while (!stoppingToken.IsCancellationRequested && (iterations <= 0 || cycle < iterations))
+    {
+        cycle++;
+
+        var partId = $"PCB-{DateTime.UtcNow:yyyyMMddHHmmss}-{cycle:000}";
+        Console.WriteLine($"Cycle {cycle}: simulating {partId} on {activeWorkOrderId}");
+
+        foreach (var machineId in machineIds)
+        {
+            await PublishAsync(
+                producer,
+                machineStatusTopic,
+                new MachineStatusMessage(
+                    machineId,
+                    "RUNNING",
+                    activeWorkOrderId,
+                    "Simulator heartbeat",
+                    DateTimeOffset.UtcNow),
+                stoppingToken);
+        }
+
+        foreach (var machineId in machineIds)
         {
             var anomalyMode = Random.Shared.NextDouble() < 0.18;
 
@@ -99,84 +148,134 @@ while (iterations <= 0 || cycle < iterations)
                     : Random.Shared.Next(0, 2),
                 ScrapRate: anomalyMode
                     ? Math.Round((decimal)(Random.Shared.NextDouble() * 0.08 + 0.08), 4)
-                    : Math.Round((decimal)(Random.Shared.NextDouble() * 0.04), 4)
-            );
+                    : Math.Round((decimal)(Random.Shared.NextDouble() * 0.04), 4));
 
-            await PublishAsync(producer, telemetryTopic, telemetry);
+            await PublishAsync(producer, telemetryTopic, telemetry, stoppingToken);
         }
 
-    await PublishAsync(producer, productionTopic, new ProductionEventMessage(
-        "SMT-01",
-        activeWorkOrderId,
-        "GOOD_PART",
-        1,
-        partId,
-        null,
-        "SMT placement completed"
-    ));
+        await PublishAsync(
+            producer,
+            productionTopic,
+            new ProductionEventMessage(
+                "SMT-01",
+                activeWorkOrderId,
+                "GOOD_PART",
+                1,
+                partId,
+                null,
+                "SMT placement completed"),
+            stoppingToken);
 
-    var aoiScrap = Random.Shared.NextDouble() < 0.18;
-    await PublishAsync(producer, productionTopic, aoiScrap
-        ? new ProductionEventMessage("AOI-01", activeWorkOrderId, "SCRAP_PART", 1, partId, "SOLDER_BRIDGE", "AOI inspection detected a defect")
-        : new ProductionEventMessage("AOI-01", activeWorkOrderId, "GOOD_PART", 1, partId, null, "AOI inspection passed"));
+        var aoiScrap = Random.Shared.NextDouble() < 0.18;
 
-    await PublishAsync(producer, productionTopic, new ProductionEventMessage(
-        "ASSEMBLY-01",
-        activeWorkOrderId,
-        "GOOD_PART",
-        1,
-        partId,
-        null,
-        "Assembly completed"
-    ));
-    await PublishAsync(producer, productionTopic, new ProductionEventMessage(
-        "TEST-01",
-        activeWorkOrderId,
-        "GOOD_PART",
-        1,
-        partId,
-        null,
-        "Functional test passed"
-    ));
-    await PublishAsync(producer, productionTopic, new ProductionEventMessage(
-        "PACKING-01",
-        activeWorkOrderId,
-        "GOOD_PART",
-        1,
-        partId,
-        null,
-        "Packed for shipment"
-    ));
+        await PublishAsync(
+            producer,
+            productionTopic,
+            aoiScrap
+                ? new ProductionEventMessage(
+                    "AOI-01",
+                    activeWorkOrderId,
+                    "SCRAP_PART",
+                    1,
+                    partId,
+                    "SOLDER_BRIDGE",
+                    "AOI inspection detected a defect")
+                : new ProductionEventMessage(
+                    "AOI-01",
+                    activeWorkOrderId,
+                    "GOOD_PART",
+                    1,
+                    partId,
+                    null,
+                    "AOI inspection passed"),
+            stoppingToken);
 
-    if (Random.Shared.NextDouble() < 0.25)
-    {
-        await PublishAsync(producer, machineStatusTopic, new MachineStatusMessage(
-            "TEST-01",
-            "DOWN",
-            activeWorkOrderId,
-            "Automated downtime from simulator",
-            DateTimeOffset.UtcNow
-        ));
+        await PublishAsync(
+            producer,
+            productionTopic,
+            new ProductionEventMessage(
+                "ASSEMBLY-01",
+                activeWorkOrderId,
+                "GOOD_PART",
+                1,
+                partId,
+                null,
+                "Assembly completed"),
+            stoppingToken);
 
-        await PublishAsync(producer, downtimeTopic, new DowntimeEventMessage(
-            "TEST-01",
-            activeWorkOrderId,
-            "EQUIPMENT_FAILURE",
-            12,
-            DateTimeOffset.UtcNow.AddMinutes(-12),
-            "Automated downtime from simulator"
-        ));
+        await PublishAsync(
+            producer,
+            productionTopic,
+            new ProductionEventMessage(
+                "TEST-01",
+                activeWorkOrderId,
+                "GOOD_PART",
+                1,
+                partId,
+                null,
+                "Functional test passed"),
+            stoppingToken);
 
-        await PublishAsync(producer, machineStatusTopic, new MachineStatusMessage(
-            "TEST-01",
-            "RUNNING",
-            activeWorkOrderId,
-            "Recovered after downtime",
-            DateTimeOffset.UtcNow
-        ));
+        await PublishAsync(
+            producer,
+            productionTopic,
+            new ProductionEventMessage(
+                "PACKING-01",
+                activeWorkOrderId,
+                "GOOD_PART",
+                1,
+                partId,
+                null,
+                "Packed for shipment"),
+            stoppingToken);
+
+        if (Random.Shared.NextDouble() < 0.25)
+        {
+            await PublishAsync(
+                producer,
+                machineStatusTopic,
+                new MachineStatusMessage(
+                    "TEST-01",
+                    "DOWN",
+                    activeWorkOrderId,
+                    "Automated downtime from simulator",
+                    DateTimeOffset.UtcNow),
+                stoppingToken);
+
+            await PublishAsync(
+                producer,
+                downtimeTopic,
+                new DowntimeEventMessage(
+                    "TEST-01",
+                    activeWorkOrderId,
+                    "EQUIPMENT_FAILURE",
+                    12,
+                    DateTimeOffset.UtcNow.AddMinutes(-12),
+                    "Automated downtime from simulator"),
+                stoppingToken);
+
+            await PublishAsync(
+                producer,
+                machineStatusTopic,
+                new MachineStatusMessage(
+                    "TEST-01",
+                    "RUNNING",
+                    activeWorkOrderId,
+                    "Recovered after downtime",
+                    DateTimeOffset.UtcNow),
+                stoppingToken);
+        }
+
+        await Task.Delay(intervalMs, stoppingToken);
     }
-
-    await Task.Delay(intervalMs);
+}
+catch (OperationCanceledException)
+{
+    Console.WriteLine("Simulator shutdown requested.");
+}
+finally
+{
+    producer.Flush(TimeSpan.FromSeconds(10));
 }
 
 Console.WriteLine("Simulator finished.");
@@ -187,73 +286,146 @@ static int ReadInt(string name, int defaultValue)
     return int.TryParse(value, out var parsed) ? parsed : defaultValue;
 }
 
-static async Task EnsureSeedAsync(HttpClient http)
+static void ValidateConfiguration(
+    string? baseUrl,
+    string? bootstrapServers,
+    string? machineStatusTopic,
+    string? productionTopic,
+    string? downtimeTopic,
+    string? telemetryTopic,
+    int intervalMs)
 {
-    await PostAndLogAsync(http, "api/workorders/seed");
-    await PostAndLogAsync(http, "api/machines/seed");
+    if (intervalMs <= 0)
+    {
+        throw new InvalidOperationException("SIMULATOR_INTERVAL_MS must be greater than zero.");
+    }
+
+    var requiredValues = new Dictionary<string, string?>
+    {
+        ["BACKEND_BASE_URL/SIMULATOR_BASE_URL"] = baseUrl,
+        ["KAFKA_BOOTSTRAP_SERVERS"] = bootstrapServers,
+        ["KAFKA_MACHINE_STATUS_TOPIC"] = machineStatusTopic,
+        ["KAFKA_PRODUCTION_TOPIC"] = productionTopic,
+        ["KAFKA_DOWNTIME_TOPIC"] = downtimeTopic,
+        ["KAFKA_TELEMETRY_TOPIC"] = telemetryTopic
+    };
+
+    foreach (var item in requiredValues)
+    {
+        if (string.IsNullOrWhiteSpace(item.Value))
+        {
+            throw new InvalidOperationException($"{item.Key} is required.");
+        }
+    }
 }
 
-static async Task WaitForBackendAsync(HttpClient http)
+static async Task WaitForBackendAsync(HttpClient http, CancellationToken stoppingToken)
 {
     await ExecuteWithRetryAsync(async () =>
     {
-        var response = await http.GetAsync("swagger");
+        using var response = await http.GetAsync("health", stoppingToken);
         response.EnsureSuccessStatusCode();
         return true;
-    }, "waiting for backend");
+    }, "waiting for backend health", stoppingToken);
 }
 
-static async Task<string?> ResolveActiveWorkOrderIdAsync(HttpClient http)
+static async Task WaitForKafkaAsync(IProducer<Null, string> producer, CancellationToken stoppingToken)
 {
-    var workOrders = await http.GetFromJsonAsync<List<WorkOrderDto>>("api/workorders/active");
+    await ExecuteWithRetryAsync(() =>
+    {
+        stoppingToken.ThrowIfCancellationRequested();
+        producer.GetMetadata(TimeSpan.FromSeconds(10));
+        return Task.FromResult(true);
+    }, "waiting for Kafka", stoppingToken);
+}
+
+static async Task EnsureSeedAsync(HttpClient http, CancellationToken stoppingToken)
+{
+    await PostAndLogAsync(http, "api/workorders/seed", stoppingToken);
+    await PostAndLogAsync(http, "api/machines/seed", stoppingToken);
+}
+
+static async Task<string?> ResolveActiveWorkOrderIdAsync(HttpClient http, CancellationToken stoppingToken)
+{
+    var workOrders = await http.GetFromJsonAsync<List<WorkOrderDto>>(
+        "api/workorders/active",
+        cancellationToken: stoppingToken);
+
     return workOrders?.FirstOrDefault()?.WorkOrderId;
 }
 
-static async Task<T> ExecuteWithRetryAsync<T>(Func<Task<T>> action, string description, int maxAttempts = 60, int delayMilliseconds = 2000)
+static async Task<T> ExecuteWithRetryAsync<T>(
+    Func<Task<T>> action,
+    string description,
+    CancellationToken stoppingToken,
+    int maxAttempts = 60,
+    int delayMilliseconds = 2000)
 {
     Exception? lastException = null;
 
     for (var attempt = 1; attempt <= maxAttempts; attempt++)
     {
+        stoppingToken.ThrowIfCancellationRequested();
+
         try
         {
             return await action();
         }
-        catch (HttpRequestException exception)
+        catch (Exception exception) when (
+            exception is HttpRequestException ||
+            exception is TaskCanceledException ||
+            exception is KafkaException ||
+            exception is InvalidOperationException)
         {
             lastException = exception;
-            Console.WriteLine($"  waiting for {description} (attempt {attempt}/{maxAttempts}): {exception.Message}");
-            await Task.Delay(delayMilliseconds);
+
+            Console.WriteLine(
+                $"  waiting for {description} (attempt {attempt}/{maxAttempts}): {exception.Message}");
+
+            await Task.Delay(delayMilliseconds, stoppingToken);
         }
     }
 
     throw new InvalidOperationException($"Timed out while {description}.", lastException);
 }
 
-static async Task PostAndLogAsync(HttpClient http, string path)
+static async Task PostAndLogAsync(HttpClient http, string path, CancellationToken stoppingToken)
 {
-    var response = await http.PostAsync(path, null);
-    var body = await response.Content.ReadAsStringAsync();
+    using var response = await http.PostAsync(path, null, stoppingToken);
+    var body = await response.Content.ReadAsStringAsync(stoppingToken);
 
     if (response.IsSuccessStatusCode)
     {
         Console.WriteLine($"  OK {path}: {body}");
+        return;
     }
-    else
-    {
-        Console.WriteLine($"  WARN {path}: {(int)response.StatusCode} {response.ReasonPhrase} {body}");
-    }
+
+    throw new HttpRequestException(
+        $"Seed endpoint failed: {path} returned {(int)response.StatusCode} {response.ReasonPhrase} {body}");
 }
 
-static async Task PublishAsync<T>(IProducer<Null, string> producer, string topic, T payload)
+static async Task PublishAsync<T>(
+    IProducer<Null, string> producer,
+    string topic,
+    T payload,
+    CancellationToken stoppingToken)
 {
-    var serializedPayload = JsonSerializer.Serialize(payload, JsonOptions());
-    var deliveryResult = await producer.ProduceAsync(topic, new Message<Null, string>
+    await ExecuteWithRetryAsync(async () =>
     {
-        Value = serializedPayload
-    });
+        var serializedPayload = JsonSerializer.Serialize(payload, JsonOptions());
 
-    Console.WriteLine($"  published {topic} to {deliveryResult.TopicPartitionOffset}: {serializedPayload}");
+        var deliveryResult = await producer.ProduceAsync(
+            topic,
+            new Message<Null, string>
+            {
+                Value = serializedPayload
+            },
+            stoppingToken);
+
+        Console.WriteLine($"  published {topic} to {deliveryResult.TopicPartitionOffset}: {serializedPayload}");
+
+        return true;
+    }, $"publishing to Kafka topic {topic}", stoppingToken, maxAttempts: 5, delayMilliseconds: 1000);
 }
 
 static JsonSerializerOptions JsonOptions() => new()
@@ -301,6 +473,7 @@ public record DowntimeEventMessage(
     DateTimeOffset StartedAt,
     string? Notes
 );
+
 public record MachineTelemetryMessage(
     string EventId,
     string MachineId,

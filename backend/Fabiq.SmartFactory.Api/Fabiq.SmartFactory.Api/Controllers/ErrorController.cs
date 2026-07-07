@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fabiq.SmartFactory.Api.Controllers;
 
 [ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class ErrorController : ControllerBase
 {
-    [Route("error")]
+    [Route("/error")]
     public IActionResult HandleError()
     {
         var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();

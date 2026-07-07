@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<SmartFactoryDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SmartFactoryDb")));
@@ -22,7 +22,7 @@ builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -44,14 +44,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseExceptionHandler("/error");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseExceptionHandler("/error");
 
 if (!app.Environment.IsDevelopment())
 {
@@ -63,5 +62,6 @@ app.UseCors("FrontendDev");
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

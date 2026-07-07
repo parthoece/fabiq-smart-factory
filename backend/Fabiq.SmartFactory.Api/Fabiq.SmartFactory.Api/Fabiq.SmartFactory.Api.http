@@ -1,7 +1,11 @@
-@baseUrl = https://localhost:5078
+@baseUrl = http://localhost:5078
 
-### Swagger
-GET {{baseUrl}}/swagger
+### Swagger UI
+GET {{baseUrl}}/swagger/index.html
+
+
+### Swagger JSON
+GET {{baseUrl}}/swagger/v1/swagger.json
 
 
 ### Seed machines
