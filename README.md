@@ -54,6 +54,8 @@ Fabiq demonstrates these engineering concerns through a compact but realistic ar
 
 ## Demo Preview
 
+![Fabiq Demo](docs/assets/demo.gif)
+
 ```text
 Machine Simulator
       │
@@ -238,9 +240,16 @@ fabiq-smart-factory/
 ├── database/
 ├── docs/
 │   ├── assets/
+│   │   ├── hero-banner.png
+│   │   ├── social-preview.png
+│   │   ├── demo.gif
+│   │   ├── architecture-cover.png
+│   │   └── feature-overview.png
 │   ├── diagrams/
 │   ├── openapi/
+│   │   └── openapi.json
 │   ├── releases/
+│   │   └── v1.0.0.md
 │   └── screenshots/
 ├── frontend/
 ├── infra/
