@@ -10,6 +10,8 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+![Fabiq Smart Factory MES](docs/assets/hero-banner.png)
+
 ---
 
 ## Overview
@@ -235,6 +237,7 @@ fabiq-smart-factory/
 ├── backend/
 ├── database/
 ├── docs/
+│   ├── assets/
 │   ├── diagrams/
 │   ├── openapi/
 │   ├── releases/
