@@ -75,7 +75,7 @@ Console.WriteLine($"Kafka bootstrap servers: {bootstrapServers}");
 try
 {
     await WaitForBackendAsync(http, stoppingToken);
-    await WaitForKafkaAsync(producer, stoppingToken);
+    await WaitForKafkaAsync(bootstrapServers, stoppingToken);
 
     if (seedFirst)
     {
@@ -329,12 +329,18 @@ static async Task WaitForBackendAsync(HttpClient http, CancellationToken stoppin
     }, "waiting for backend health", stoppingToken);
 }
 
-static async Task WaitForKafkaAsync(IProducer<Null, string> producer, CancellationToken stoppingToken)
+static async Task WaitForKafkaAsync(string bootstrapServers, CancellationToken stoppingToken)
 {
     await ExecuteWithRetryAsync(() =>
     {
         stoppingToken.ThrowIfCancellationRequested();
-        producer.GetMetadata(TimeSpan.FromSeconds(10));
+
+        using var adminClient = new AdminClientBuilder(new AdminClientConfig
+        {
+            BootstrapServers = bootstrapServers
+        }).Build();
+
+        adminClient.GetMetadata(TimeSpan.FromSeconds(10));
         return Task.FromResult(true);
     }, "waiting for Kafka", stoppingToken);
 }
