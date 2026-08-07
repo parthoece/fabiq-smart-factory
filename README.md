@@ -13,7 +13,24 @@
 ![Fabiq Smart Factory MES](docs/assets/hero-banner.png)
 
 ---
+## Demo Preview
 
+![Fabiq Demo](docs/assets/demo.gif)
+
+```text
+Machine Simulator
+      │
+      ▼
+Apache Kafka
+      │
+      ├── Backend API ───► PostgreSQL ───► React Dashboard
+      │
+      └── AI Anomaly Worker ───► maintenance.alerts ───► Backend API
+
+Prometheus ───► Backend Metrics ───► Grafana
+```
+
+---
 ## Overview
 
 **Fabiq** is a full-stack smart manufacturing platform that demonstrates how a modern Manufacturing Execution System (MES) can ingest, process, persist, and visualize manufacturing data.
@@ -52,24 +69,7 @@ Fabiq demonstrates these engineering concerns through a compact but realistic ar
 
 ---
 
-## Demo Preview
 
-![Fabiq Demo](docs/assets/demo.gif)
-
-```text
-Machine Simulator
-      │
-      ▼
-Apache Kafka
-      │
-      ├── Backend API ───► PostgreSQL ───► React Dashboard
-      │
-      └── AI Anomaly Worker ───► maintenance.alerts ───► Backend API
-
-Prometheus ───► Backend Metrics ───► Grafana
-```
-
----
 
 ## Architecture
 
