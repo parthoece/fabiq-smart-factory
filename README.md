@@ -10,7 +10,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-![Fabiq Smart Factory MES](docs/assets/hero-banner.png)
+
 
 ---
 ## Demo Preview
