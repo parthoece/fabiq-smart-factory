@@ -397,16 +397,3 @@ This project is licensed under the MIT License.
 See [LICENSE](LICENSE).
 
 ---
-
-## Portfolio Positioning
-
-Fabiq demonstrates backend engineering, event-driven architecture, manufacturing domain modeling, observability, containerized deployment, and AI-assisted anomaly detection in a smart factory context.
-
-It is designed to support interviews and portfolio discussions for roles such as:
-
-- Backend Software Engineer
-- Manufacturing Software Engineer
-- MES Engineer
-- Industrial IoT Engineer
-- Platform Engineer
-- Automation Software Engineer
